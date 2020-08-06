@@ -36,7 +36,7 @@ val compileOptions = Seq(
 )
 
 lazy val root = (project in file("."))
-  .settings(name := "wazamap")
+  .settings(name := "skills")
   .settings(
     scalacOptions ++= compileOptions,
     libraryDependencies ++= commonLib ++ Seq(
