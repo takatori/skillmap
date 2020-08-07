@@ -1,1 +1,1 @@
-# wazamap
+# skillmap
