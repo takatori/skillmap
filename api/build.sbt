@@ -41,6 +41,7 @@ lazy val root = (project in file("."))
         "com.softwaremill.sttp.tapir" %% "tapir-core"              % tapirVer,
         "com.softwaremill.sttp.tapir" %% "tapir-zio"               % tapirVer,
         "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server" % tapirVer,
-        "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"     % tapirVer
+        "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"     % tapirVer,
+        "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % tapirVer
       )
   )
