@@ -6,13 +6,29 @@ import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
 import sttp.model.StatusCode
-import zio.{IO, Task, ZIO}
+import zio.{Has, IO, Task, ZIO, ZLayer}
 import skills.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
 import skills.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skills.usecase.UserUseCase
 import zio.interop.catz._
 import zio.interop.catz.implicits._
 
 object UserRoute {
+
+  trait Service {
+    def route: ZIO[Any, Any, HttpRoutes[Task]]
+  }
+
+  val live: ZLayer[Has[UserUseCase.Service], Nothing, Has[UserRoute.Service]] =
+    ZLayer.fromService { usecase =>
+      val endpointWithLogic =
+        getUserEndPoint.toRoutes(id => usecase.getUser(id))
+
+      new Service {
+        override def route: ZIO[Any, Any, HttpRoutes[Task]] =
+          ZIO.succeed(endpointWithLogic)
+      }
+    }
 
   /*
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] =
@@ -43,9 +59,6 @@ object UserRoute {
       )
     )
     .out(stringBody)
-    .zServerLogic {
-      case (id) => IO.succeed(s"$id")
-    }
 
   private def handleError[A](
       result: ZIO[Any, ExpectedFailure, A]
@@ -65,7 +78,9 @@ object UserRoute {
       )
   }
 
+  /*
   val userRoute: HttpRoutes[Task] = List(
     getUserEndPoint
   ).toRoutes
+ */
 }

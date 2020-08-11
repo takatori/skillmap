@@ -6,6 +6,7 @@ val http4sVer     = "0.21.6"
 val tapirVer      = "0.16.10"
 val circeVer      = "0.13.0"
 val catsEffectVer = "2.1.3"
+val doobieVer     = "0.9.0"
 
 val commonLib = Seq(
   "dev.zio"       %% "zio"                 % zioVer,
@@ -18,6 +19,9 @@ val commonLib = Seq(
   "io.circe"      %% "circe-core"          % circeVer,
   "io.circe"      %% "circe-generic"       % circeVer,
   "io.circe"      %% "circe-parser"        % circeVer,
+  "org.tpolecat"  %% "doobie-core"         % doobieVer,
+  "org.tpolecat"  %% "doobie-h2"           % doobieVer,
+  "org.tpolecat"  %% "doobie-hikari"       % doobieVer,
   "org.slf4j"     % "slf4j-simple"         % "1.6.4"
 )
 
