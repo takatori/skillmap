@@ -4,7 +4,7 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import skills.domain.user.{LiveUserRepository, UserRepository}
-import skills.presentation.UserRoute
+import skills.presentation.route.{Route, UserRoute}
 import skills.usecase.UserUseCase
 import zio._
 import zio.blocking.Blocking
@@ -20,7 +20,7 @@ object Main extends App {
 
     val result: ZIO[Any, Any, Unit] =
       (for {
-        route <- ZIO.accessM[Has[UserRoute.Service]](_.get.route)
+        route <- ZIO.accessM[Route](_.get.route)
         httpApp = Router("/" -> route)
         server <- ZIO.runtime.flatMap { implicit runtime: Runtime[Any] =>
           BlazeServerBuilder[Task](runtime.platform.executor.asEC)

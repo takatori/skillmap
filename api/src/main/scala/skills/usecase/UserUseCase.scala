@@ -2,7 +2,7 @@ package skills.usecase
 
 import skills.domain.failure.{ExpectedFailure, NotFoundFailure}
 import skills.domain.user.{User, UserRepository}
-import zio.{Has, ZIO, ZLayer}
+import zio.{ZIO, ZLayer}
 
 object UserUseCase {
 
@@ -10,7 +10,7 @@ object UserUseCase {
     def getUser(id: String): ZIO[Any, ExpectedFailure, User]
   }
 
-  val live: ZLayer[UserRepository, Nothing, Has[UserUseCase.Service]] =
+  val live: ZLayer[UserRepository, Nothing, UserUseCase] =
     ZLayer.fromService { repo =>
       new Service {
         override def getUser(id: String): ZIO[Any, ExpectedFailure, User] =
