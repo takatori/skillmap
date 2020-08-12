@@ -2,16 +2,15 @@ package skills.presentation
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import sttp.tapir.server.http4s.ztapir._
-import sttp.tapir.ztapir._
-import sttp.tapir.json.circe._
-import sttp.model.StatusCode
-import zio.{Has, IO, Task, ZIO, ZLayer}
 import skills.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
 import skills.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
 import skills.usecase.UserUseCase
+import sttp.model.StatusCode
+import sttp.tapir.json.circe._
+import sttp.tapir.server.http4s.ztapir._
+import sttp.tapir.ztapir._
 import zio.interop.catz._
-import zio.interop.catz.implicits._
+import zio.{Has, Task, ZIO, ZLayer}
 
 object UserRoute {
 
@@ -22,7 +21,7 @@ object UserRoute {
   val live: ZLayer[Has[UserUseCase.Service], Nothing, Has[UserRoute.Service]] =
     ZLayer.fromService { usecase =>
       val endpointWithLogic =
-        getUserEndPoint.toRoutes(id => usecase.getUser(id))
+        getUserEndPoint.toRoutes(id => usecase.getUser(id).map(_.toString).orElse(ZIO.fail(NotFoundResponse(""))))
 
       new Service {
         override def route: ZIO[Any, Any, HttpRoutes[Task]] =
@@ -77,10 +76,4 @@ object UserRoute {
         identity
       )
   }
-
-  /*
-  val userRoute: HttpRoutes[Task] = List(
-    getUserEndPoint
-  ).toRoutes
- */
 }
