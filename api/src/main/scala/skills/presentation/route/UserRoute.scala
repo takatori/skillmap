@@ -11,6 +11,7 @@ import zio.{Task, ZIO, ZLayer}
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir._
 import io.circe.generic.auto._
+import skills.domain.user.UserId
 import zio.interop.catz._
 
 object UserRoute {
@@ -18,7 +19,9 @@ object UserRoute {
   val live: ZLayer[UserUseCase, Nothing, Route] =
     ZLayer.fromService { usecase =>
       val endpointWithLogic: HttpRoutes[Task] =
-        getUserEndPoint.toRoutes(id => usecase.getUser(id).map(_.toString).orElse(ZIO.fail(NotFoundResponse(""))))
+        getUserEndPoint.toRoutes(id =>
+          usecase.getUser(new UserId(id)).map(_.toString).orElse(ZIO.fail(NotFoundResponse("")))
+        )
 
       new Service {
         override def route: ZIO[Any, Any, HttpRoutes[Task]] =

@@ -15,16 +15,16 @@ import scala.concurrent.ExecutionContext
 class LiveUserRepository(tnx: Transactor[Task]) extends UserRepository.Service {
   import LiveUserRepository._
 
-  override def get(id: String): ZIO[Any, ExpectedFailure, Option[User]] =
+  override def get(id: UserId): ZIO[Any, ExpectedFailure, Option[User]] =
     SQL
-      .get(id)
+      .get(id.value)
       .option
       .transact(tnx)
       .mapError(t => DBFailure(t))
 
   override def save(user: User): ZIO[Any, Throwable, Unit] = ZIO.unit
 
-  override def remove(id: String): ZIO[Any, Throwable, Unit] = ZIO.unit
+  override def remove(id: UserId): ZIO[Any, Throwable, Unit] = ZIO.unit
 }
 
 object LiveUserRepository {
