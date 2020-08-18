@@ -6,7 +6,7 @@ env:
   SCALA_VERSION: 2.13.2
 
 jobs:
-　validate:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2        
