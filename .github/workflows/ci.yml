@@ -1,13 +1,16 @@
 name: CI
 on: [push, pull_request]
-
 env:
   CI: true
   SCALA_VERSION: 2.13.2
 
 jobs:
-  validate:
+  validate:    
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: scripts    
     steps:
       - uses: actions/checkout@v2        
       - uses: olafurpg/setup-scala@v5
