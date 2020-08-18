@@ -1,21 +1,37 @@
-name: Scala CI
+name: CI
+on: [push, pull_request]
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+env:
+  CI: true
+  SCALA_VERSION: 2.13.2
 
 jobs:
-  build:
-
+　validate:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Run tests
-      run: sbt test
+      - uses: actions/checkout@v2        
+      - uses: olafurpg/setup-scala@v5
+      - name: Cache Coursier
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/coursier
+          key: sbt-coursier-cache
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: ~/.sbt
+          key: sbt-${{ hashFiles('**/build.sbt') }}      
+      - name: Check formatting
+        run: sbt ++$SCALA_VERSION scalafmtCheckAll          
+      - name: Check headers
+        run: sbt ++$SCALA_VERSION headerCheck test:headerCheck
+      - name: Compile
+        run: sbt ++$SCALA_VERSION test:compile
+      - name: Check compatibility
+        run: sbt ++$SCALA_VERSION mimaReportBinaryIssues
+      - name: Check unused dependencies
+        run: sbt ++$SCALA_VERSION unusedCompileDependenciesTest
+      - name: Test
+        run: sbt ++$SCALA_VERSION test
+      - name: Scaladoc
+        run: sbt ++$SCALA_VERSION doc 
