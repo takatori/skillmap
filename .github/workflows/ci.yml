@@ -8,6 +8,9 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
     steps:
       - uses: actions/checkout@v2        
       - uses: olafurpg/setup-scala@v7
