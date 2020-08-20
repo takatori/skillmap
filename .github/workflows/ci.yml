@@ -25,9 +25,7 @@ jobs:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}      
       - name: Check formatting
-        run: sbt ++$SCALA_VERSION scalafmtCheckAll          
-      - name: Check headers
-        run: sbt ++$SCALA_VERSION headerCheck test:headerCheck
+        run: sbt ++$SCALA_VERSION scalafmtCheckAll
       - name: Compile
         run: sbt ++$SCALA_VERSION test:compile
       - name: Check compatibility
