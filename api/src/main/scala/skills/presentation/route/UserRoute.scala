@@ -20,7 +20,7 @@ object UserRoute {
     ZLayer.fromService { usecase =>
       val endpointWithLogic: HttpRoutes[Task] =
         getUserEndPoint.toRoutes(id =>
-          usecase.getUser(new UserId(id)).map(_.toString).orElse(ZIO.fail(NotFoundResponse("")))
+          usecase.get(new UserId(id)).map(_.toString).orElse(ZIO.fail(NotFoundResponse("")))
         )
 
       new Service {

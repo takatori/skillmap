@@ -22,9 +22,19 @@ class LiveUserRepository(tnx: Transactor[Task]) extends UserRepository.Service {
       .transact(tnx)
       .mapError(t => DBFailure(t))
 
-  override def save(user: User): ZIO[Any, Throwable, Unit] = ZIO.unit
+  override def save(user: User): ZIO[Any, Throwable, Unit] =
+    SQL
+      .save(user)
+      .run
+      .transact(tnx)
+      .foldM(err => Task.fail(err), _ => ZIO.unit)
 
-  override def remove(id: UserId): ZIO[Any, Throwable, Unit] = ZIO.unit
+  override def remove(id: UserId): ZIO[Any, Throwable, Unit] =
+    SQL
+      .delete(id.value)
+      .run
+      .transact(tnx)
+      .foldM(err => Task.fail(err), _ => ZIO.unit)
 }
 
 object LiveUserRepository {
@@ -33,8 +43,21 @@ object LiveUserRepository {
     def get(id: String): Query0[User] =
       sql"""SELECT * FROM USERS WHERE ID = $id""".query[User]
 
-    def update = ""
-    def delete = ""
+    def save(user: User) =
+      sql"""INSERT INTO USERS (
+             id, 
+             name
+           ) 
+           VALUES (
+             ${user.id.value}, 
+             ${user.name}
+           )
+           ON DUPLICATE KEY UPDATE
+             name = ${user.name} 
+           """.update
+
+    def delete(id: String) =
+      sql"DELETE FROM USERS WHERE ID = $id".update
   }
 
   def mkTransactor(
