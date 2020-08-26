@@ -1,11 +1,11 @@
-package skills.domain.user
+package skillmap.domain.user
 
 import cats.effect.Blocker
 import doobie.h2.H2Transactor
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.transactor.Transactor
-import skills.domain.failure.{DBFailure, ExpectedFailure}
+import skillmap.domain.failure.{DBFailure, ExpectedFailure}
 import zio.blocking.Blocking
 import zio.{blocking, Managed, Task, ZIO, ZLayer}
 import zio.interop.catz._

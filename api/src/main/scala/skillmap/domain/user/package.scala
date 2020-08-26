@@ -1,6 +1,6 @@
-package skills.domain
+package skillmap.domain
 
-import skills.domain.failure.ExpectedFailure
+import skillmap.domain.failure.ExpectedFailure
 import zio.{Has, ZIO}
 
 package object user {

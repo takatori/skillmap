@@ -1,4 +1,4 @@
-package skills.presentation.response
+package skillmap.presentation.response
 
 sealed trait ErrorResponse extends Product with Serializable
 case class InternalServerErrorResponse(message: String, exceptionMessage: String, exception: String)

@@ -1,3 +1,3 @@
-package skills.domain.user
+package skillmap.domain.user
 
 class UserId(val value: String) extends AnyVal

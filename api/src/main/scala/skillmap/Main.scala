@@ -1,11 +1,11 @@
-package skills
+package skillmap
 
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
-import skills.domain.user.{LiveUserRepository, UserRepository}
-import skills.presentation.route.{Route, UserRoute}
-import skills.usecase.UserUseCase
+import skillmap.domain.user.{LiveUserRepository, UserRepository}
+import skillmap.presentation.route.{Route, UserRoute}
+import skillmap.usecase.UserUseCase
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock

@@ -1,4 +1,4 @@
-package skills.domain.failure
+package skillmap.domain.failure
 
 sealed abstract class ExpectedFailure       extends Exception
 case class DBFailure(throwable: Throwable)  extends ExpectedFailure

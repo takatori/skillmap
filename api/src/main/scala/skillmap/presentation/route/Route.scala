@@ -1,8 +1,8 @@
-package skills.presentation.route
+package skillmap.presentation.route
 
 import org.http4s.HttpRoutes
-import skills.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
-import skills.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skillmap.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
+import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
 import zio.{Task, ZIO}
 
 object Route {

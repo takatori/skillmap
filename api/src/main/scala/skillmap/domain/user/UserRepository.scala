@@ -1,6 +1,6 @@
-package skills.domain.user
+package skillmap.domain.user
 
-import skills.domain.failure.ExpectedFailure
+import skillmap.domain.failure.ExpectedFailure
 import zio.ZIO
 
 object UserRepository {

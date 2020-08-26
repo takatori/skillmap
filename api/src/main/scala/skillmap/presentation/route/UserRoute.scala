@@ -1,9 +1,9 @@
-package skills.presentation.route
+package skillmap.presentation.route
 
 import org.http4s.HttpRoutes
-import skills.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
-import skills.presentation.route.Route.Service
-import skills.usecase.UserUseCase
+import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skillmap.presentation.route.Route.Service
+import skillmap.usecase.UserUseCase
 import sttp.model.StatusCode
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir.{endpoint, oneOf, path, statusMapping}
@@ -11,8 +11,8 @@ import zio.{Task, ZIO, ZLayer}
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir._
 import io.circe.generic.auto._
-import skills.domain.failure.ExpectedFailure
-import skills.domain.user.{User, UserId}
+import skillmap.domain.failure.ExpectedFailure
+import skillmap.domain.user.{User, UserId}
 import sttp.tapir.Endpoint
 import zio.interop.catz._
 import cats.implicits._

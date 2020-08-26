@@ -1,7 +1,7 @@
-package skills.usecase
+package skillmap.usecase
 
-import skills.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
-import skills.domain.user.{User, UserId, UserRepository}
+import skillmap.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
+import skillmap.domain.user.{User, UserId, UserRepository}
 import zio.{ZIO, ZLayer}
 
 object UserUseCase {

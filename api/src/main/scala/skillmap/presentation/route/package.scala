@@ -1,4 +1,4 @@
-package skills.presentation
+package skillmap.presentation
 
 import zio.Has
 
