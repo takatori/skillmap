@@ -23,7 +23,7 @@ case class UserForm(name: String)
 object UserRoute {
 
   import Endpoints._
-  import Logics._
+  import Logic._
 
   val live: ZLayer[UserUseCase, Nothing, Route] =
     ZLayer.fromService { implicit usecase =>
@@ -37,7 +37,7 @@ object UserRoute {
       }
     }
 
-  object Logics {
+  object Logic {
 
     def getUserLogic(id: String)(implicit userUseCase: UserUseCase.Service): ZIO[Any, ErrorResponse, UserResponse] =
       userUseCase
@@ -45,7 +45,7 @@ object UserRoute {
         .map(u => UserResponse(u.id.value, u.name))
         .catchAll {
           case _: ExpectedFailure => ZIO.fail(NotFoundResponse(s"user not found $id."))
-          case e                  => ZIO.fail(InternalServerErrorResponse(s"$e", "", ""))
+          case _                  => ZIO.fail(InternalServerErrorResponse(s"internal server error"))
         }
 
     def registerUserLogic(
@@ -54,12 +54,12 @@ object UserRoute {
       userUseCase
         .save(User(new UserId("1234"), form.name))
         .catchAll {
-          case e => ZIO.fail(InternalServerErrorResponse(s"$e", "", s"${e.getMessage}"))
+          case _ => ZIO.fail(InternalServerErrorResponse("internal server error"))
         }
   }
 
   object Endpoints {
-    val userEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
+    val baseEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
       .errorOut(
         oneOf(
           statusMapping(
@@ -72,7 +72,8 @@ object UserRoute {
           )
         )
       )
-      .in("user")
+
+    val userEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = baseEndpoint.in("user")
 
     val getUserEndPoint: Endpoint[String, ErrorResponse, UserResponse, Nothing] = userEndpoint.get
       .in(path[String]("user id"))

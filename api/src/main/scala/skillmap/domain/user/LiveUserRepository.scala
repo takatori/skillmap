@@ -27,7 +27,10 @@ class LiveUserRepository(tnx: Transactor[Task]) extends UserRepository.Service {
       .save(user)
       .run
       .transact(tnx)
-      .foldM(err => Task.fail(err), _ => ZIO.unit)
+      .foldM(err => {
+        println(err.getMessage)
+        Task.fail(err)
+      }, _ => ZIO.unit)
 
   override def remove(id: UserId): ZIO[Any, Throwable, Unit] =
     SQL

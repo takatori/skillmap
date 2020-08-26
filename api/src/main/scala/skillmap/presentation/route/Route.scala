@@ -23,13 +23,13 @@ object Route {
       .fold(
         {
           case DBFailure(t) =>
-            Left(InternalServerErrorResponse("Database BOOM!!!", t.getMessage, t.getStackTrace.toString))
+            Left(InternalServerErrorResponse("Database BOOM!!!"))
           case NotFoundFailure(message) => Left(NotFoundResponse(message))
         },
         Right(_)
       )
       .foldCause(
-        c => Left(InternalServerErrorResponse("Unexpected errors", "", c.squash.getStackTrace.toString)),
+        c => Left(InternalServerErrorResponse("Unexpected errors")),
         identity
       )
   }
