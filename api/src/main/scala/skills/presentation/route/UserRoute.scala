@@ -12,8 +12,10 @@ import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir._
 import io.circe.generic.auto._
 import skills.domain.failure.ExpectedFailure
-import skills.domain.user.UserId
+import skills.domain.user.{User, UserId}
+import sttp.tapir.Endpoint
 import zio.interop.catz._
+import cats.implicits._
 
 case class UserResponse(id: String, name: String)
 case class UserForm(name: String)
@@ -25,7 +27,10 @@ object UserRoute {
 
   val live: ZLayer[UserUseCase, Nothing, Route] =
     ZLayer.fromService { implicit usecase =>
-      val routes: HttpRoutes[Task] = getUserEndPoint.toRoutes(getUserLogic(_))
+      val routes: HttpRoutes[Task] =
+        getUserEndPoint.toRoutes(getUserLogic(_)) combineK
+        registerUserEndpoint.toRoutes(registerUserLogic(_))
+
       new Service {
         override def route: ZIO[Any, Any, HttpRoutes[Task]] =
           ZIO.succeed(routes)
@@ -43,10 +48,18 @@ object UserRoute {
           case e                  => ZIO.fail(InternalServerErrorResponse(s"$e", "", ""))
         }
 
+    def registerUserLogic(
+        form: UserForm
+    )(implicit userUseCase: UserUseCase.Service): ZIO[Any, InternalServerErrorResponse, Unit] =
+      userUseCase
+        .save(User(new UserId("1234"), form.name))
+        .catchAll {
+          case e => ZIO.fail(InternalServerErrorResponse(s"$e", "", s"${e.getMessage}"))
+        }
   }
 
   object Endpoints {
-    val userEndpoint = endpoint
+    val userEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
       .errorOut(
         oneOf(
           statusMapping(
@@ -61,11 +74,11 @@ object UserRoute {
       )
       .in("user")
 
-    val getUserEndPoint = userEndpoint.get
+    val getUserEndPoint: Endpoint[String, ErrorResponse, UserResponse, Nothing] = userEndpoint.get
       .in(path[String]("user id"))
       .out(jsonBody[UserResponse])
 
-    val registerUser = userEndpoint.post
+    val registerUserEndpoint: Endpoint[UserForm, ErrorResponse, Unit, Nothing] = userEndpoint.post
       .in(
         jsonBody[UserForm]
           .description("Register User")
