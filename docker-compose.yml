@@ -10,3 +10,5 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
+    volumes:
+        - ./schema/initialize_sql:/docker-entrypoint-initdb.d
