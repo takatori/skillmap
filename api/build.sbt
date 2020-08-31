@@ -30,6 +30,7 @@ val dependencies = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % tapirVer,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % tapirVer,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % tapirVer,
+  "mysql"                       % "mysql-connector-java"      % "8.0.21",
   "org.slf4j"                   % "slf4j-simple"              % "1.6.4"
 )
 

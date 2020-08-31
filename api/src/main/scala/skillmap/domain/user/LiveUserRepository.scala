@@ -1,14 +1,15 @@
 package skillmap.domain.user
 
 import cats.effect.Blocker
-import doobie.h2.H2Transactor
+import com.zaxxer.hikari.HikariConfig
+import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.transactor.Transactor
 import skillmap.domain.failure.{DBFailure, ExpectedFailure}
 import zio.blocking.Blocking
-import zio.{blocking, Managed, Task, ZIO, ZLayer}
 import zio.interop.catz._
+import zio._
 
 import scala.concurrent.ExecutionContext
 
@@ -44,11 +45,11 @@ object LiveUserRepository {
 
   object SQL {
     def get(id: String): Query0[User] =
-      sql"""SELECT * FROM USERS WHERE ID = $id""".query[User]
+      sql"""SELECT * FROM users WHERE `user_id` = $id""".query[User]
 
     def save(user: User) =
-      sql"""INSERT INTO USERS (
-             id, 
+      sql"""INSERT INTO users (
+             user_id, 
              name
            ) 
            VALUES (
@@ -60,7 +61,7 @@ object LiveUserRepository {
            """.update
 
     def delete(id: String) =
-      sql"DELETE FROM USERS WHERE ID = $id".update
+      sql"DELETE FROM users WHERE `user_id` = $id".update
   }
 
   def mkTransactor(
@@ -69,11 +70,16 @@ object LiveUserRepository {
       transactEC: ExecutionContext
   ): Managed[Throwable, LiveUserRepository] = {
     import zio.interop.catz._
-    H2Transactor
-      .newH2Transactor[Task](
-        "localhost",
-        "root",
-        "",
+
+    val config = new HikariConfig()
+    config.setDriverClassName("com.mysql.jdbc.Driver")
+    config.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/skillmap")
+    config.setUsername("root")
+    config.setPassword("example")
+
+    HikariTransactor
+      .fromHikariConfig[Task](
+        config,
         connectEC,
         Blocker.liftExecutionContext(transactEC)
       )
