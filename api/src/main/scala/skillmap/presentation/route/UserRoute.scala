@@ -39,9 +39,9 @@ object UserRoute {
 
   object Logic {
 
-    def getUserLogic(id: String)(implicit userUseCase: UserUseCase.Service): ZIO[Any, ErrorResponse, UserResponse] =
+    def getUserLogic(id: UserId)(implicit userUseCase: UserUseCase.Service): ZIO[Any, ErrorResponse, UserResponse] =
       userUseCase
-        .get(new UserId(id))
+        .get(id)
         .map(u => UserResponse(u.id.value, u.name))
         .catchAll {
           case _: ExpectedFailure => ZIO.fail(NotFoundResponse(s"user not found $id."))
@@ -52,7 +52,7 @@ object UserRoute {
         form: UserForm
     )(implicit userUseCase: UserUseCase.Service): ZIO[Any, InternalServerErrorResponse, Unit] =
       userUseCase
-        .save(User(new UserId("1234"), form.name))
+        .save(User(UserId("1234"), form.name))
         .catchAll {
           case _ => ZIO.fail(InternalServerErrorResponse("internal server error"))
         }
@@ -75,16 +75,18 @@ object UserRoute {
 
     val userEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = baseEndpoint.in("user")
 
-    val getUserEndPoint: Endpoint[String, ErrorResponse, UserResponse, Nothing] = userEndpoint.get
-      .in(path[String]("user id"))
-      .out(jsonBody[UserResponse])
+    val getUserEndPoint: Endpoint[UserId, ErrorResponse, UserResponse, Nothing] =
+      userEndpoint.get
+        .in(path[String]("user id").mapTo(UserId))
+        .out(jsonBody[UserResponse])
 
-    val registerUserEndpoint: Endpoint[UserForm, ErrorResponse, Unit, Nothing] = userEndpoint.post
-      .in(
-        jsonBody[UserForm]
-          .description("Register User")
-          .example(UserForm("Test User Name"))
-      )
+    val registerUserEndpoint: Endpoint[UserForm, ErrorResponse, Unit, Nothing] =
+      userEndpoint.post
+        .in(
+          jsonBody[UserForm]
+            .description("Register User")
+            .example(UserForm("Test User Name"))
+        )
 
   }
 
