@@ -12,10 +12,11 @@ import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir._
 import io.circe.generic.auto._
 import skillmap.domain.failure.ExpectedFailure
-import skillmap.domain.user.{User, UserId}
+import skillmap.domain.user.UserId
 import sttp.tapir.Endpoint
 import zio.interop.catz._
 import cats.implicits._
+import skillmap.infrastructure.id.IdFactory
 
 case class UserResponse(id: String, name: String)
 case class UserForm(name: String)
@@ -52,24 +53,26 @@ object UserRoute {
         form: UserForm
     )(implicit userUseCase: UserUseCase.Service): ZIO[Any, InternalServerErrorResponse, Unit] =
       userUseCase
-        .save(User(UserId("1234"), form.name))
+        .register(form.name)
         .catchAll {
           case _ => ZIO.fail(InternalServerErrorResponse("internal server error"))
         }
+        .provideLayer(IdFactory.live)
   }
 
   object Endpoints {
     val baseEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
       .errorOut(
-        oneOf(
+        oneOf[ErrorResponse](
           statusMapping(
             StatusCode.InternalServerError,
-            jsonBody[InternalServerErrorResponse]
+            jsonBody[InternalServerErrorResponse].description("internal server error")
           ),
           statusMapping(
             StatusCode.NotFound,
-            jsonBody[NotFoundResponse]
-          )
+            jsonBody[NotFoundResponse].description("resource not found")
+          ),
+          statusDefaultMapping(jsonBody[InternalServerErrorResponse])
         )
       )
 
