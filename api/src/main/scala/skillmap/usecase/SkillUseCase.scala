@@ -12,6 +12,7 @@ object SkillUseCase {
   trait Service {
     def get(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Skill]
     def register(name: String, description: Option[String]): ZIO[SkillRepository with IdFactory, ExpectedFailure, Unit]
+    def remove(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Unit]
   }
 
   object Service {
@@ -30,6 +31,11 @@ object SkillUseCase {
           id <- id.generate()
           s = Skill(SkillId(id), name, description)
           _ <- skill.save(s).mapError(e => DBFailure(e))
+        } yield ()
+
+      override def remove(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Unit] =
+        for {
+          _ <- skill.remove(id)
         } yield ()
     }
   }

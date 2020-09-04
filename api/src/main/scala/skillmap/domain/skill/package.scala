@@ -11,4 +11,8 @@ package object skill {
 
   def save(skill: Skill): ZIO[SkillRepository, Throwable, Unit] =
     ZIO.accessM(_.get.save(skill))
+
+  def remove(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Unit] =
+    ZIO.accessM(_.get.remove(id))
+
 }

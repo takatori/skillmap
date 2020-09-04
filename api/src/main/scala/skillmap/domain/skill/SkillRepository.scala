@@ -7,5 +7,6 @@ object SkillRepository {
   trait Service {
     def get(id: SkillId): ZIO[Any, ExpectedFailure, Option[Skill]]
     def save(skill: Skill): ZIO[Any, Throwable, Unit]
+    def remove(id: SkillId): ZIO[Any, ExpectedFailure, Unit]
   }
 }
