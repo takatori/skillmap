@@ -1,22 +1,19 @@
 package skillmap.presentation.route
 
+import io.circe.generic.auto._
 import org.http4s.HttpRoutes
+import skillmap.domain.failure.ExpectedFailure
+import skillmap.domain.user.{User, UserId}
+import skillmap.infrastructure.id.IdFactory
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
 import skillmap.presentation.route.Route.Service
 import skillmap.usecase.UserUseCase
-import sttp.model.StatusCode
 import sttp.tapir.json.circe.jsonBody
-import sttp.tapir.ztapir.{endpoint, oneOf, path, statusMapping}
-import zio.{Task, ZIO, ZLayer}
 import sttp.tapir.server.http4s.ztapir._
-import sttp.tapir.ztapir._
-import io.circe.generic.auto._
-import skillmap.domain.failure.ExpectedFailure
-import skillmap.domain.user.UserId
-import sttp.tapir.Endpoint
+import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
+import zio.{Task, URIO, ZIO, ZLayer}
 import cats.implicits._
-import skillmap.infrastructure.id.IdFactory
 
 case class UserResponse(id: String, name: String)
 case class UserForm(name: String)
@@ -28,19 +25,20 @@ object UserRoute {
 
   val live: ZLayer[UserUseCase, Nothing, Route] =
     ZLayer.fromService { implicit usecase =>
-      val routes: HttpRoutes[Task] =
-        getUserEndPoint.toRoutes(getUserLogic(_)) combineK
-        registerUserEndpoint.toRoutes(registerUserLogic(_))
+      val routes: URIO[UserUseCase, HttpRoutes[Task]] =
+        getUserEndPoint.serverLogic(input => getUserLogic(input._1, input._2)).toRoutesR combineK
+        registerUserEndpoint.toRoutesR(registerUserLogic(_))
 
       new Service {
-        override def route: ZIO[Any, Any, HttpRoutes[Task]] =
-          ZIO.succeed(routes)
+        override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] = routes
       }
     }
 
   object Logic {
 
-    def getUserLogic(id: UserId)(implicit userUseCase: UserUseCase.Service): ZIO[Any, ErrorResponse, UserResponse] =
+    def getUserLogic(user: User, id: UserId)(
+        implicit userUseCase: UserUseCase.Service
+    ): ZIO[Any, ErrorResponse, UserResponse] =
       userUseCase
         .get(id)
         .map(u => UserResponse(u.id.value, u.name))
@@ -61,29 +59,20 @@ object UserRoute {
   }
 
   object Endpoints {
-    val baseEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
-      .errorOut(
-        oneOf[ErrorResponse](
-          statusMapping(
-            StatusCode.InternalServerError,
-            jsonBody[InternalServerErrorResponse].description("internal server error")
-          ),
-          statusMapping(
-            StatusCode.NotFound,
-            jsonBody[NotFoundResponse].description("resource not found")
-          ),
-          statusDefaultMapping(jsonBody[InternalServerErrorResponse])
-        )
-      )
 
-    val userEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = baseEndpoint.in("user")
+    import Route.Service._
 
-    val getUserEndPoint: Endpoint[UserId, ErrorResponse, UserResponse, Nothing] =
-      userEndpoint.get
+    private val userEndpoint = baseEndpoint.in("user")
+
+    private val secureUserEndpoint: ZPartialServerEndpoint[UserUseCase, User, Unit, ErrorResponse, Unit] =
+      secureEndpoint.in("user")
+
+    val getUserEndPoint: ZPartialServerEndpoint[UserUseCase, User, UserId, ErrorResponse, UserResponse] =
+      secureUserEndpoint.get
         .in(path[String]("user id").mapTo(UserId))
         .out(jsonBody[UserResponse])
 
-    val registerUserEndpoint: Endpoint[UserForm, ErrorResponse, Unit, Nothing] =
+    val registerUserEndpoint: ZEndpoint[UserForm, ErrorResponse, Unit] =
       userEndpoint.post
         .in(
           jsonBody[UserForm]

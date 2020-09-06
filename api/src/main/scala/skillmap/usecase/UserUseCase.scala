@@ -1,6 +1,6 @@
 package skillmap.usecase
 
-import skillmap.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
+import skillmap.domain.failure.{AuthenticationFailure, DBFailure, ExpectedFailure, NotFoundFailure}
 import skillmap.domain.user.{User, UserId, UserRepository}
 import skillmap.infrastructure.id
 import skillmap.infrastructure.id.IdFactory
@@ -12,6 +12,7 @@ object UserUseCase {
     def get(id: UserId): ZIO[Any, ExpectedFailure, User]
     def register(name: String): ZIO[IdFactory, ExpectedFailure, Unit]
     def remove(id: UserId): ZIO[Any, ExpectedFailure, Unit]
+    def auth(token: String): ZIO[Any, ExpectedFailure, User]
   }
 
   val live: ZLayer[UserRepository, Nothing, UserUseCase] =
@@ -36,6 +37,11 @@ object UserUseCase {
           for {
             result <- repo.remove(id).mapError(e => DBFailure(e))
           } yield result
+
+        override def auth(token: String): ZIO[Any, ExpectedFailure, User] = {
+          if (token == "secret") ZIO.succeed(User(UserId("1234"), "Spock"))
+          else ZIO.fail(AuthenticationFailure("error auth"))
+        }
       }
     }
 }
