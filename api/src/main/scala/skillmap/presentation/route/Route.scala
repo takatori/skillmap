@@ -13,7 +13,7 @@ import zio.{Task, ZIO}
 
 object Route {
   trait Service {
-    def route: ZIO[UserUseCase, Any, HttpRoutes[Task]]
+    def route: ZIO[Any, Any, HttpRoutes[Task]]
   }
 
   object Service {

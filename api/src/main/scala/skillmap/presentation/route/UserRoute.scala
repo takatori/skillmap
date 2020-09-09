@@ -12,7 +12,7 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
-import zio.{Task, URIO, ZIO, ZLayer}
+import zio.{Task, ZIO, ZLayer}
 import cats.implicits._
 
 case class UserResponse(id: String, name: String)
@@ -25,9 +25,14 @@ object UserRoute {
 
   val live: ZLayer[UserUseCase, Nothing, Route] =
     ZLayer.fromService { implicit usecase =>
-      val routes: URIO[UserUseCase, HttpRoutes[Task]] =
-        getUserEndPoint.serverLogic(input => getUserLogic(input._1, input._2)).toRoutesR combineK
-        registerUserEndpoint.toRoutesR(registerUserLogic(_))
+      val a = getUserEndPoint.serverLogic((input: (User, UserId)) => getUserLogic(input._1, input._2)).toRoutesR
+      val b =
+        registerUserEndpoint.zServerLogic(registerUserLogic(_)).toRoutesR
+
+      val routes: ZIO[UserUseCase, Any, HttpRoutes[Task]] = for {
+        a1: HttpRoutes[Task] <- a
+        b1: HttpRoutes[Task] <- b
+      } yield a1 <+> b1
 
       new Service {
         override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] = routes

@@ -23,7 +23,8 @@ object Main extends App {
 
     import sttp.tapir.docs.openapi._
     import sttp.tapir.openapi.circe.yaml._
-    val yaml = List(Endpoints.getUserEndPoint, Endpoints.registerUserEndpoint).toOpenAPI("Our pets", "1.0").toYaml
+    val yaml =
+      List(Endpoints.getUserEndPoint.endpoint, Endpoints.registerUserEndpoint).toOpenAPI("Our pets", "1.0").toYaml
 
     val result: ZIO[Any, Any, Unit] =
       (for {
