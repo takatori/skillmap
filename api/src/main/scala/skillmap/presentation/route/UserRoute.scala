@@ -6,14 +6,12 @@ import skillmap.domain.failure.ExpectedFailure
 import skillmap.domain.user.{User, UserId}
 import skillmap.infrastructure.id.IdFactory
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
-import skillmap.presentation.route.Route.Service
 import skillmap.usecase.UserUseCase
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
-import zio.{Task, ZIO, ZLayer}
-import cats.implicits._
+import zio.{Task, ZIO}
 
 case class UserResponse(id: String, name: String)
 case class UserForm(name: String)
@@ -23,44 +21,38 @@ object UserRoute {
   import Endpoints._
   import Logic._
 
-  val live: ZLayer[UserUseCase, Nothing, Route] =
-    ZLayer.fromService { implicit usecase =>
-      val a = getUserEndPoint.serverLogic((input: (User, UserId)) => getUserLogic(input._1, input._2)).toRoutesR
-      val b =
-        registerUserEndpoint.zServerLogic(registerUserLogic(_)).toRoutesR
-
-      val routes: ZIO[UserUseCase, Any, HttpRoutes[Task]] = for {
-        a1: HttpRoutes[Task] <- a
-        b1: HttpRoutes[Task] <- b
-      } yield a1 <+> b1
-
-      new Service {
-        override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] = routes
-      }
-    }
+  val route: ZIO[UserUseCase, Nothing, HttpRoutes[Task]] =
+    for {
+      get      <- getUserEndPoint.serverLogic(getUserLogic).toRoutesR
+      register <- registerUserEndpoint.zServerLogic(registerUserLogic).toRoutesR
+    } yield get <+> register
 
   object Logic {
 
-    def getUserLogic(user: User, id: UserId)(
-        implicit userUseCase: UserUseCase.Service
-    ): ZIO[Any, ErrorResponse, UserResponse] =
-      userUseCase
-        .get(id)
-        .map(u => UserResponse(u.id.value, u.name))
-        .catchAll {
-          case _: ExpectedFailure => ZIO.fail(NotFoundResponse(s"user not found $id."))
-          case _                  => ZIO.fail(InternalServerErrorResponse(s"internal server error"))
-        }
+    def getUserLogic(input: (User, UserId)): ZIO[UserUseCase, ErrorResponse, UserResponse] =
+      for {
+        response <- ZIO.accessM[UserUseCase](
+          _.get
+            .get(input._2)
+            .map(u => UserResponse(u.id.value, u.name))
+            .catchAll {
+              case _: ExpectedFailure => ZIO.fail(NotFoundResponse(s"user not found ${input._2}."))
+              case _                  => ZIO.fail(InternalServerErrorResponse(s"internal server error"))
+            }
+        )
+      } yield response
 
-    def registerUserLogic(
-        form: UserForm
-    )(implicit userUseCase: UserUseCase.Service): ZIO[Any, InternalServerErrorResponse, Unit] =
-      userUseCase
-        .register(form.name)
-        .catchAll {
-          case _ => ZIO.fail(InternalServerErrorResponse("internal server error"))
-        }
-        .provideLayer(IdFactory.live)
+    def registerUserLogic(form: UserForm): ZIO[UserUseCase, InternalServerErrorResponse, Unit] =
+      for {
+        response <- ZIO.accessM[UserUseCase](
+          _.get
+            .register(form.name)
+            .catchAll {
+              case _ => ZIO.fail(InternalServerErrorResponse("internal server error"))
+            }
+            .provideLayer(IdFactory.live)
+        )
+      } yield response
   }
 
   object Endpoints {
