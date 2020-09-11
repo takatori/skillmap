@@ -1,5 +1,7 @@
 package skillmap
 
+import skillmap.usecase.skill.SkillUseCase
+import skillmap.usecase.user.UserUseCase
 import zio.Has
 
 package object usecase {

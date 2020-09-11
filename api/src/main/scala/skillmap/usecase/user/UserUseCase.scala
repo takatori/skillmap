@@ -1,9 +1,10 @@
-package skillmap.usecase
+package skillmap.usecase.user
 
 import skillmap.domain.failure.{AuthenticationFailure, DBFailure, ExpectedFailure, NotFoundFailure}
 import skillmap.domain.user.{User, UserId, UserRepository}
 import skillmap.infrastructure.id
 import skillmap.infrastructure.id.IdFactory
+import skillmap.usecase.UserUseCase
 import zio.{ZIO, ZLayer}
 
 object UserUseCase {

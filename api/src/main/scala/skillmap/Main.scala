@@ -5,7 +5,6 @@ import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import skillmap.domain.user.{LiveUserRepository, UserRepository}
 import skillmap.presentation.route.UserRoute.Endpoints
-import skillmap.usecase.UserUseCase
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio._
 import zio.blocking.Blocking
@@ -14,6 +13,7 @@ import zio.interop.catz._
 import zio.interop.catz.implicits._
 import cats.implicits._
 import skillmap.presentation.route.Route
+import skillmap.usecase.user.UserUseCase
 
 object Main extends App {
 

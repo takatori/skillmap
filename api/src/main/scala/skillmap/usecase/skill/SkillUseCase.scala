@@ -1,4 +1,4 @@
-package skillmap.usecase
+package skillmap.usecase.skill
 
 import skillmap.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
 import skillmap.domain.skill

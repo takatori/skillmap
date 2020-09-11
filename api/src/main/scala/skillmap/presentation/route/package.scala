@@ -1,7 +1,7 @@
 package skillmap.presentation
 
 import org.http4s.HttpRoutes
-import skillmap.usecase.UserUseCase
+import skillmap.usecase.user.UserUseCase
 import zio.{Has, Task, ZIO}
 
 package object route {
