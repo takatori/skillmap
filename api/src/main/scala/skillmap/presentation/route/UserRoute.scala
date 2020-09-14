@@ -12,6 +12,7 @@ import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
 import zio.{Task, ZIO}
+import cats.implicits._
 
 case class UserResponse(id: String, name: String)
 case class UserForm(name: String)

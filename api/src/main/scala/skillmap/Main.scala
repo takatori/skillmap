@@ -38,7 +38,9 @@ object Main extends App {
             .compile
             .drain
         }
-      } yield server).provideLayer(Blocking.live >>> LiveUserRepository.live >>> UserUseCase.live >>> Route.live)
+      } yield server).provideLayer(
+        (Blocking.live >>> LiveUserRepository.live >>> UserUseCase.live) ++ Route.live
+      )
 
     result.exitCode
   }

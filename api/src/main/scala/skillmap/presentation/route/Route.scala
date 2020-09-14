@@ -4,16 +4,16 @@ import io.circe.generic.auto._
 import org.http4s.HttpRoutes
 import skillmap.domain.user.User
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
-import skillmap.usecase.user.UserUseCase
+import skillmap.usecase.UserUseCase
 import sttp.model.StatusCode
 import sttp.tapir.Endpoint
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir.{endpoint, oneOf, statusMapping, _}
-import zio.{Has, Task, ULayer, ZIO, ZLayer}
+import zio.{Task, ZIO, ZLayer}
 
 object Route {
   trait Service {
-    def route: ZIO[Any, Any, HttpRoutes[Task]]
+    def route: ZIO[UserUseCase, Any, HttpRoutes[Task]]
   }
 
   object Service {
@@ -45,10 +45,11 @@ object Route {
         )
 
   }
-  val live: ZLayer[UserUseCase, Nothing, Route] =
-    ZLayer.fromServicesM((usecase: UserUseCase.Service) =>
+  val live: ZLayer[Any, Nothing, Route] =
+    ZLayer.succeed(
       new Service {
-        override def route: ZIO[Any, Any, HttpRoutes[Task]] = UserRoute.route.provide(usecase)
+        override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] = UserRoute.route
       }
     )
+
 }
