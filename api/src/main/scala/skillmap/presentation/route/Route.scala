@@ -48,6 +48,7 @@ object Route {
   val live: ZLayer[Any, Nothing, Route] =
     ZLayer.succeed(
       new Service {
+        import zio.interop.catz._
         import cats.implicits._
         override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] =
           for {
