@@ -48,7 +48,12 @@ object Route {
   val live: ZLayer[Any, Nothing, Route] =
     ZLayer.succeed(
       new Service {
-        override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] = UserRoute.route
+        import cats.implicits._
+        override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] =
+          for {
+            userRoute   <- UserRoute.route
+            apidocRoute <- ApiDocRoute.route
+          } yield userRoute <+> apidocRoute
       }
     )
 

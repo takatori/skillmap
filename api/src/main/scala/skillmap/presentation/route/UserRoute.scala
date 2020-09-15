@@ -78,6 +78,8 @@ object UserRoute {
             .example(UserForm("Test User Name"))
         )
 
+    val endpoints = List(getUserEndPoint.endpoint, registerUserEndpoint)
+
   }
 
 }
