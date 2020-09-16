@@ -51,10 +51,7 @@ object Route {
         import zio.interop.catz._
         import cats.implicits._
         override def route: ZIO[UserUseCase, Any, HttpRoutes[Task]] =
-          for {
-            userRoute   <- UserRoute.route
-            apidocRoute <- ApiDocRoute.route
-          } yield userRoute <+> apidocRoute
+          ZIO.mapN(UserRoute.route, ApiDocRoute.route)(_ <+> _)
       }
     )
 

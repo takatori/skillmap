@@ -23,10 +23,10 @@ object UserRoute {
   import Logic._
 
   val route: ZIO[UserUseCase, Nothing, HttpRoutes[Task]] =
-    for {
-      get      <- getUserEndPoint.serverLogic(getUserLogic).toRoutesR
-      register <- registerUserEndpoint.zServerLogic(registerUserLogic).toRoutesR
-    } yield get <+> register
+    ZIO.mapN(
+      getUserEndPoint.serverLogic(getUserLogic).toRoutesR,
+      registerUserEndpoint.zServerLogic(registerUserLogic).toRoutesR
+    )(_ <+> _)
 
   object Logic {
 
