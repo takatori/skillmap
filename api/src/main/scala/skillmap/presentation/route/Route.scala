@@ -4,7 +4,7 @@ import io.circe.generic.auto._
 import org.http4s.HttpRoutes
 import skillmap.domain.user.User
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
-import skillmap.usecase.UserUseCase
+import skillmap.usecase.user.UserUseCase
 import sttp.model.StatusCode
 import sttp.tapir.Endpoint
 import sttp.tapir.json.circe.jsonBody

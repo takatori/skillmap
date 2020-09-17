@@ -4,6 +4,7 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import skillmap.domain.user.{LiveUserRepository, UserRepository}
+import skillmap.infrastructure.id.IdFactory
 import skillmap.presentation.route.Route
 import skillmap.usecase.user.UserUseCase
 import zio._
@@ -31,7 +32,7 @@ object Main extends App {
             .drain
         }
       } yield server).provideLayer(
-        (Blocking.live >>> LiveUserRepository.live >>> UserUseCase.live) ++ Route.live
+        (((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live) ++ Route.live
       )
 
     result.exitCode

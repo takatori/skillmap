@@ -2,22 +2,20 @@ package skillmap.usecase.user
 
 import skillmap.domain.failure.{AuthenticationFailure, DBFailure, ExpectedFailure, NotFoundFailure}
 import skillmap.domain.user.{User, UserId, UserRepository}
-import skillmap.infrastructure.id
 import skillmap.infrastructure.id.IdFactory
-import skillmap.usecase.UserUseCase
 import zio.{ZIO, ZLayer}
 
 object UserUseCase {
 
   trait Service {
     def get(id: UserId): ZIO[Any, ExpectedFailure, User]
-    def register(name: String): ZIO[IdFactory, ExpectedFailure, Unit]
+    def register(name: String): ZIO[Any, ExpectedFailure, Unit]
     def remove(id: UserId): ZIO[Any, ExpectedFailure, Unit]
     def auth(token: String): ZIO[Any, ExpectedFailure, User]
   }
 
-  val live: ZLayer[UserRepository, Nothing, UserUseCase] =
-    ZLayer.fromService { repo =>
+  val live: ZLayer[UserRepository with IdFactory, Nothing, UserUseCase] =
+    ZLayer.fromServices[UserRepository.Service, IdFactory.Service, UserUseCase] { (repo, idFactory) =>
       new Service {
         override def get(id: UserId): ZIO[Any, ExpectedFailure, User] =
           for {
@@ -27,9 +25,9 @@ object UserUseCase {
               .mapError(_ => NotFoundFailure(s"user($id) not found."))
           } yield user
 
-        override def register(name: String): ZIO[IdFactory, ExpectedFailure, Unit] =
+        override def register(name: String): ZIO[Any, ExpectedFailure, Unit] =
           for {
-            uid <- id.generate()
+            uid <- idFactory.generate()
             user = User(UserId(uid), name)
             result <- repo.save(user).mapError(e => DBFailure(e))
           } yield result
