@@ -1,22 +1,21 @@
-package skillmap.presentation.route
+package skillmap.presentation.route.user
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
 import skillmap.domain.failure.ExpectedFailure
 import skillmap.domain.user.{User, UserId}
-import skillmap.infrastructure.id.IdFactory
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skillmap.presentation.route.Route
+import skillmap.presentation.route.user.form.UserForm
+import skillmap.presentation.route.user.response.UserResponse
+import skillmap.usecase.user
+import skillmap.usecase.user.UserUseCase
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
 import zio.{Task, ZIO}
 import cats.implicits._
-import skillmap.usecase.user
-import skillmap.usecase.user.UserUseCase
-
-case class UserResponse(id: String, name: String)
-case class UserForm(name: String)
 
 object UserRoute {
 
@@ -53,13 +52,8 @@ object UserRoute {
   }
 
   object Endpoints {
-
-    import Route.Service._
-
-    private val userEndpoint = baseEndpoint.in("user")
-
-    private val secureUserEndpoint: ZPartialServerEndpoint[UserUseCase, User, Unit, ErrorResponse, Unit] =
-      secureEndpoint.in("user")
+    private val userEndpoint       = Route.baseEndpoint.in("user")
+    private val secureUserEndpoint = Route.secureEndpoint.in("user")
 
     val getUserEndPoint: ZPartialServerEndpoint[UserUseCase, User, UserId, ErrorResponse, UserResponse] =
       secureUserEndpoint.get
@@ -75,7 +69,6 @@ object UserRoute {
         )
 
     val endpoints = List(getUserEndPoint.endpoint, registerUserEndpoint)
-
   }
 
 }

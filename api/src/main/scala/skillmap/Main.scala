@@ -19,6 +19,8 @@ object Main extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
 
+    val layer = (((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live) ++ Route.live
+
     val result: ZIO[Any, Any, Unit] =
       (for {
         route <- presentation.route.route
@@ -31,9 +33,7 @@ object Main extends App {
             .compile
             .drain
         }
-      } yield server).provideLayer(
-        (((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live) ++ Route.live
-      )
+      } yield server).provideLayer(layer)
 
     result.exitCode
   }

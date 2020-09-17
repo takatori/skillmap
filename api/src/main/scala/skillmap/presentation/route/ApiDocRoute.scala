@@ -1,6 +1,7 @@
 package skillmap.presentation.route
 
 import org.http4s.HttpRoutes
+import skillmap.presentation.route.user.UserRoute
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio.{Task, UIO, ZIO}
 import zio.interop.catz._

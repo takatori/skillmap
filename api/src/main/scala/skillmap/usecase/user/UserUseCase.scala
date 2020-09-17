@@ -15,7 +15,7 @@ object UserUseCase {
   }
 
   val live: ZLayer[UserRepository with IdFactory, Nothing, UserUseCase] =
-    ZLayer.fromServices[UserRepository.Service, IdFactory.Service, UserUseCase] { (repo, idFactory) =>
+    ZLayer.fromServices[UserRepository.Service, IdFactory.Service, UserUseCase.Service] { (repo, idFactory) =>
       new Service {
         override def get(id: UserId): ZIO[Any, ExpectedFailure, User] =
           for {
