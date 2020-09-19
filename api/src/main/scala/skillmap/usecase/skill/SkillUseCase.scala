@@ -1,44 +1,47 @@
 package skillmap.usecase.skill
 
 import skillmap.domain.failure.{DBFailure, ExpectedFailure, NotFoundFailure}
-import skillmap.domain.skill
 import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
-import skillmap.infrastructure.id
 import skillmap.infrastructure.id.IdFactory
-import zio.{Has, ULayer, ZIO, ZLayer}
+import zio.{ZIO, ZLayer}
 
 object SkillUseCase {
 
   trait Service {
-    def get(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Skill]
-    def register(name: String, description: Option[String]): ZIO[SkillRepository with IdFactory, ExpectedFailure, Unit]
-    def remove(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Unit]
+    def get(id: SkillId): ZIO[Any, ExpectedFailure, Skill]
+    def register(name: String, description: Option[String]): ZIO[Any, ExpectedFailure, Unit]
+    def remove(id: SkillId): ZIO[Any, ExpectedFailure, Unit]
   }
 
   object Service {
-    val live: Service = new Service {
-      override def get(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Skill] =
+    def live(repo: SkillRepository.Service, idFactory: IdFactory.Service): Service = new Service {
+      override def get(id: SkillId): ZIO[Any, ExpectedFailure, Skill] =
         for {
-          skillOpt <- skill.get(id)
-          skill    <- ZIO.fromOption(skillOpt).mapError(_ => NotFoundFailure(""))
+          skillOpt <- repo.get(id)
+          skill <- ZIO
+            .fromOption(skillOpt)
+            .mapError(_ => NotFoundFailure(s"$id not found."))
         } yield skill
 
       override def register(
           name: String,
           description: Option[String]
-      ): ZIO[SkillRepository with IdFactory, ExpectedFailure, Unit] =
+      ): ZIO[Any, ExpectedFailure, Unit] =
         for {
-          id <- id.generate()
+          id <- idFactory.generate()
           s = Skill(SkillId(id), name, description)
-          _ <- skill.save(s).mapError(e => DBFailure(e))
+          _ <- repo.save(s).mapError(e => DBFailure(e))
         } yield ()
 
-      override def remove(id: SkillId): ZIO[SkillRepository, ExpectedFailure, Unit] =
+      override def remove(id: SkillId): ZIO[Any, ExpectedFailure, Unit] =
         for {
-          _ <- skill.remove(id)
+          _ <- repo.remove(id)
         } yield ()
     }
   }
 
-  val live: ULayer[Has[Service]] = ZLayer.succeed(Service.live)
+  val live: ZLayer[SkillRepository with IdFactory, Nothing, SkillUseCase] =
+    ZLayer.fromServices[SkillRepository.Service, IdFactory.Service, SkillUseCase.Service] { (repo, idFactory) =>
+      Service.live(repo, idFactory)
+    }
 }
