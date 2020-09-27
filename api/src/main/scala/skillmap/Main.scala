@@ -1,11 +1,16 @@
 package skillmap
 
+import org.http4s.HttpRoutes
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
+import skillmap.domain.skill.SkillRepository
 import skillmap.domain.user.LiveUserRepository
 import skillmap.infrastructure.id.IdFactory
-import skillmap.presentation.route.Route
+import skillmap.presentation.route.ApiDocRoute
+import skillmap.presentation.route.skill.SkillRoute
+import skillmap.presentation.route.user.UserRoute
+import skillmap.usecase.skill.SkillUseCase
 import skillmap.usecase.user.UserUseCase
 import zio._
 import zio.blocking.Blocking
@@ -16,12 +21,22 @@ object Main extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
 
-    val layer = (((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live) ++ Route.live
+    import cats.implicits._
+    val userUseCaseLayer  = ((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live
+    val skillUseCaseLayer = (SkillRepository.live ++ IdFactory.live) >>> SkillUseCase.live
+    val skillRoute        = SkillRoute.route.provideLayer(skillUseCaseLayer ++ userUseCaseLayer)
+    val userRoute         = UserRoute.route.provideLayer(userUseCaseLayer)
+    val routeAll: ZIO[Any, Any, HttpRoutes[Task]] =
+      for {
+        a <- userRoute
+        b <- skillRoute
+        c <- ApiDocRoute.route
+      } yield a <+> b <+> c
 
     val result: ZIO[Any, Any, Unit] =
-      (for {
-        route <- presentation.route.route
-        httpApp = Router("/" -> route)
+      for {
+        r <- routeAll
+        httpApp = Router("/" -> r)
         server <- ZIO.runtime.flatMap { implicit runtime: Runtime[Any] =>
           BlazeServerBuilder[Task](runtime.platform.executor.asEC)
             .bindHttp(8080, "localhost")
@@ -30,7 +45,7 @@ object Main extends App {
             .compile
             .drain
         }
-      } yield server).provideLayer(layer)
+      } yield server
 
     result.exitCode
   }

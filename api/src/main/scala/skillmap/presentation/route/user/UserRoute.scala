@@ -15,7 +15,6 @@ import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
 import zio.{Task, ZIO}
-import cats.implicits._
 
 object UserRoute {
 
@@ -23,10 +22,10 @@ object UserRoute {
   import Logic._
 
   val route: ZIO[UserUseCase, Nothing, HttpRoutes[Task]] =
-    ZIO.mapN(
-      getUserEndPoint.serverLogic(getUserLogic).toRoutesR,
-      registerUserEndpoint.zServerLogic(registerUserLogic).toRoutesR
-    )(_ <+> _)
+    List(
+      getUserEndPoint.serverLogic(getUserLogic),
+      registerUserEndpoint.zServerLogic(registerUserLogic)
+    ).toRoutesR
 
   object Logic {
 
