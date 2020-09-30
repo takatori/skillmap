@@ -4,8 +4,8 @@ import org.http4s.HttpRoutes
 import skillmap.presentation.route.skill.SkillRoute
 import skillmap.presentation.route.user.UserRoute
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
-import zio.{Task, UIO, ZIO}
 import zio.interop.catz._
+import zio.{Task, ZIO}
 
 object ApiDocRoute {
 
@@ -20,6 +20,6 @@ object ApiDocRoute {
     .toOpenAPI("skillmap api", "0.0.1")
     .toYaml
 
-  val route: UIO[HttpRoutes[Task]] = ZIO.succeed(new SwaggerHttp4s(yaml).routes[Task])
+  val route: ZIO[Any, Any, HttpRoutes[Task]] = ZIO.succeed(new SwaggerHttp4s(yaml).routes[Task])
 
 }

@@ -21,17 +21,15 @@ object Main extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
 
-    import cats.implicits._
-    val userUseCaseLayer  = ((Blocking.live >>> LiveUserRepository.live) ++ IdFactory.live) >>> UserUseCase.live
+    val userRepository    = Blocking.live >>> LiveUserRepository.live
+    val userUseCaseLayer  = (userRepository ++ IdFactory.live) >>> UserUseCase.live
     val skillUseCaseLayer = (SkillRepository.live ++ IdFactory.live) >>> SkillUseCase.live
     val skillRoute        = SkillRoute.route.provideLayer(skillUseCaseLayer ++ userUseCaseLayer)
     val userRoute         = UserRoute.route.provideLayer(userUseCaseLayer)
+
+    import cats.implicits._
     val routeAll: ZIO[Any, Any, HttpRoutes[Task]] =
-      for {
-        a <- userRoute
-        b <- skillRoute
-        c <- ApiDocRoute.route
-      } yield a <+> b <+> c
+      ZIO.reduceAll(ApiDocRoute.route, List(userRoute, skillRoute, ApiDocRoute.route))(_ <+> _)
 
     val result: ZIO[Any, Any, Unit] =
       for {
