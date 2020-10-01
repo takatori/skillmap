@@ -28,12 +28,12 @@ object Main extends App {
     val userRoute         = UserRoute.route.provideLayer(userUseCaseLayer)
 
     import cats.implicits._
-    val routeAll: ZIO[Any, Any, HttpRoutes[Task]] =
+    val routes: ZIO[Any, Any, HttpRoutes[Task]] =
       ZIO.reduceAll(ApiDocRoute.route, List(userRoute, skillRoute, ApiDocRoute.route))(_ <+> _)
 
     val result: ZIO[Any, Any, Unit] =
       for {
-        r <- routeAll
+        r <- routes
         httpApp = Router("/" -> r)
         server <- ZIO.runtime.flatMap { implicit runtime: Runtime[Any] =>
           BlazeServerBuilder[Task](runtime.platform.executor.asEC)
