@@ -11,6 +11,7 @@ val doobieVer     = "0.9.0"
 val dependencies = Seq(
   "dev.zio"                     %% "zio"                      % zioVer,
   "dev.zio"                     %% "zio-interop-cats"         % "2.1.4.0",
+  "dev.zio"                     %% "zio-macros"               % zioVer,
   "org.typelevel"               %% "cats-effect"              % catsEffectVer,
   "org.http4s"                  %% "http4s-core"              % http4sVer,
   "org.http4s"                  %% "http4s-dsl"               % http4sVer,
@@ -47,7 +48,8 @@ val compileOptions = Seq(
   "-language:implicitConversions",
   "-language:higherKinds",
   "-language:existentials",
-  "-language:postfixOps"
+  "-language:postfixOps",
+  "-Ymacro-annotations"
 )
 
 lazy val root = (project in file("."))
