@@ -18,9 +18,7 @@ object SkillUseCase {
       override def get(id: SkillId): ZIO[Any, ExpectedFailure, Skill] =
         for {
           skillOpt <- repo.get(id)
-          skill <- ZIO
-            .fromOption(skillOpt)
-            .mapError(_ => NotFoundFailure(s"$id not found."))
+          skill    <- ZIO.fromOption(skillOpt).orElseFail(NotFoundFailure(s"$id not found."))
         } yield skill
 
       override def register(

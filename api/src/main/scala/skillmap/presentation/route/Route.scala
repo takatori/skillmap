@@ -34,8 +34,6 @@ object Route {
   val secureEndpoint: ZPartialServerEndpoint[UserUseCase, User, Unit, ErrorResponse, Unit] =
     baseEndpoint
       .in(header[String]("X-AUTH-TOKEN"))
-      .zServerLogicForCurrent { token =>
-        ZIO.accessM[UserUseCase](_.get.auth(token).mapError(_ => NotFoundResponse("")))
-      }
+      .zServerLogicForCurrent { token => ZIO.accessM[UserUseCase](_.get.auth(token).orElseFail(NotFoundResponse(""))) }
 
 }

@@ -46,9 +46,7 @@ object SkillRoute {
       for {
         response <- skill
           .register(input._2.name, input._2.description)
-          .catchAll {
-            case _ => ZIO.fail(InternalServerErrorResponse(""))
-          }
+          .catchAll(_ => ZIO.fail(InternalServerErrorResponse("")))
       } yield response
   }
 

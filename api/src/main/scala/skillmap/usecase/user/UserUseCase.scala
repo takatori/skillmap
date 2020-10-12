@@ -20,9 +20,7 @@ object UserUseCase {
         override def get(id: UserId): ZIO[Any, ExpectedFailure, User] =
           for {
             userOpt <- repo.get(id)
-            user <- ZIO
-              .fromOption(userOpt)
-              .mapError(_ => NotFoundFailure(s"user($id) not found."))
+            user    <- ZIO.fromOption(userOpt).orElseFail(NotFoundFailure(s"user($id) not found."))
           } yield user
 
         override def register(name: String): ZIO[Any, ExpectedFailure, Unit] =

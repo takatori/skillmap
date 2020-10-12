@@ -1,6 +1,6 @@
 package skillmap.infrastructure.id
 
-import zio.{Has, UIO, URLayer, ZIO, ZLayer}
+import zio.{Has, UIO, ULayer, URLayer, ZIO, ZLayer}
 
 object IdFactory {
   trait Service {
@@ -13,4 +13,11 @@ object IdFactory {
         ZIO.succeed(java.util.UUID.randomUUID.toString.replace("-", ""))
     }
   }
+
+  val test: ULayer[Has[Service]] = ZLayer.succeed {
+    new Service {
+      override def generate(): UIO[String] = ZIO.succeed("test value")
+    }
+  }
+
 }
