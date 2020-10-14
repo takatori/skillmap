@@ -4,7 +4,6 @@ import skillmap.domain.failure.{ExpectedFailure, NotFoundFailure}
 import skillmap.domain.user.{User, UserId, UserRepository}
 import skillmap.infrastructure.id.IdFactory
 import skillmap.usecase.user
-import zio.Layer
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -42,7 +41,7 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
         val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
         for {
           result <- user.get(id).provideLayer(layer).run
-        } yield assert(result)(fails())
+        } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
       }
   }
 
