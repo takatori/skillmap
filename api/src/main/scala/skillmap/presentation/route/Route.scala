@@ -1,6 +1,7 @@
 package skillmap.presentation.route
 
 import io.circe.generic.auto._
+import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
 import skillmap.domain.user.User
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
 import skillmap.usecase.user.UserUseCase
@@ -11,6 +12,20 @@ import sttp.tapir.ztapir.{endpoint, oneOf, statusMapping, _}
 import zio.ZIO
 
 object Route {
+
+  object Logic {
+    def errorToResponse[R, A](zio: ZIO[R, ApplicationError, A]): ZIO[R, ErrorResponse, A] =
+      zio.sandbox.mapError(c =>
+        c.failureOrCause match {
+          case Left(_) => InternalServerErrorResponse("internal server error")
+          case Right(value) =>
+            value.squash match {
+              case e: NotFoundFailure => NotFoundResponse(e.message)
+              case _                  => InternalServerErrorResponse("internal server error")
+            }
+        }
+      )
+  }
 
   val baseEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
     .errorOut(

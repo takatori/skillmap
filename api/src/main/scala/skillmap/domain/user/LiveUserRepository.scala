@@ -6,7 +6,6 @@ import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.transactor.Transactor
-import skillmap.domain.failure.{DBFailure, ExpectedFailure}
 import zio.blocking.Blocking
 import zio.interop.catz._
 import zio._
@@ -16,12 +15,11 @@ import scala.concurrent.ExecutionContext
 class LiveUserRepository(tnx: Transactor[Task]) extends UserRepository.Service {
   import LiveUserRepository._
 
-  override def get(id: UserId): ZIO[Any, ExpectedFailure, Option[User]] =
+  override def get(id: UserId): ZIO[Any, Throwable, Option[User]] =
     SQL
       .get(id.value)
       .option
       .transact(tnx)
-      .mapError(t => DBFailure(t))
 
   override def save(user: User): ZIO[Any, Throwable, Unit] =
     SQL

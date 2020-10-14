@@ -2,10 +2,9 @@ package skillmap.presentation.route.skill
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import skillmap.domain.failure.ExpectedFailure
 import skillmap.domain.skill.SkillId
 import skillmap.domain.user.User
-import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skillmap.presentation.response.ErrorResponse
 import skillmap.presentation.route.Route
 import skillmap.presentation.route.skill.form.SkillForm
 import skillmap.presentation.route.skill.response.SkillResponse
@@ -32,22 +31,17 @@ object SkillRoute {
   object Logic {
 
     def getSkill(input: SkillId): ZIO[SkillUseCase, ErrorResponse, SkillResponse] =
-      for {
+      Route.Logic.errorToResponse(for {
         response <- skill
           .get(input)
           .map(s => SkillResponse(s.id.value, s.name, s.description))
-          .catchAll {
-            case _: ExpectedFailure => ZIO.fail(NotFoundResponse(""))
-            case _                  => ZIO.fail(InternalServerErrorResponse(""))
-          }
-      } yield response
+      } yield response)
 
     def registerSkill(input: (User, SkillForm)): ZIO[SkillUseCase, ErrorResponse, Unit] =
-      for {
+      Route.Logic.errorToResponse(for {
         response <- skill
           .register(input._2.name, input._2.description)
-          .catchAll(_ => ZIO.fail(InternalServerErrorResponse("")))
-      } yield response
+      } yield response)
   }
 
   object Endpoints {

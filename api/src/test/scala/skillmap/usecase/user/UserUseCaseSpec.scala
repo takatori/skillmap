@@ -1,6 +1,6 @@
 package skillmap.usecase.user
 
-import skillmap.domain.failure.{ExpectedFailure, NotFoundFailure}
+import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
 import skillmap.domain.user.{User, UserId, UserRepository}
 import skillmap.infrastructure.id.IdFactory
 import skillmap.usecase.user
@@ -24,7 +24,7 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
     )
 
   object TestCase {
-    val get_success: ZSpec[Any, ExpectedFailure] = testM("returns User") {
+    val get_success: ZSpec[Any, ApplicationError] = testM("returns User") {
       val id             = UserId("test")
       val testUser       = User(id, "test user")
       val mockRepository = MockUserRepository.Get(equalTo(id), value(Some(testUser)))
