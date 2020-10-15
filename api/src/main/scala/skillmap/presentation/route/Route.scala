@@ -1,6 +1,7 @@
 package skillmap.presentation.route
 
 import io.circe.generic.auto._
+import org.http4s.HttpRoutes
 import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
 import skillmap.domain.user.User
 import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
@@ -9,23 +10,24 @@ import sttp.model.StatusCode
 import sttp.tapir.Endpoint
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir.{endpoint, oneOf, statusMapping, _}
-import zio.ZIO
+import zio.{Task, ZIO}
 
-object Route {
+trait Route[R0] {
 
-  object Logic {
-    def errorToResponse[R, A](zio: ZIO[R, ApplicationError, A]): ZIO[R, ErrorResponse, A] =
-      zio.sandbox.mapError(c =>
-        c.failureOrCause match {
-          case Left(_) => InternalServerErrorResponse("internal server error")
-          case Right(value) =>
-            value.squash match {
-              case e: NotFoundFailure => NotFoundResponse(e.message)
-              case _                  => InternalServerErrorResponse("internal server error")
-            }
-        }
-      )
-  }
+  val route: ZIO[R0, Nothing, HttpRoutes[Task]]
+  val endpoints: Seq[Endpoint[_, _, _, _]]
+
+  def errorToResponse[R, A](zio: ZIO[R, ApplicationError, A]): ZIO[R, ErrorResponse, A] =
+    zio.sandbox.mapError(c =>
+      c.failureOrCause match {
+        case Left(_) => InternalServerErrorResponse("internal server error")
+        case Right(value) =>
+          value.squash match {
+            case e: NotFoundFailure => NotFoundResponse(e.message)
+            case _                  => InternalServerErrorResponse("internal server error")
+          }
+      }
+    )
 
   val baseEndpoint: Endpoint[Unit, ErrorResponse, Unit, Nothing] = endpoint
     .errorOut(

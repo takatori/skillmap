@@ -17,37 +17,23 @@ import sttp.tapir.ztapir.{path, _}
 import zio.interop.catz._
 import zio.{Task, ZIO}
 
-object SkillRoute {
+object SkillRoute extends Route[UserUseCase with SkillUseCase] {
 
   import Endpoints._
   import Logic._
 
-  val route: ZIO[UserUseCase with SkillUseCase, Any, HttpRoutes[Task]] =
+  override val route: ZIO[UserUseCase with SkillUseCase, Nothing, HttpRoutes[Task]] =
     List[ZServerEndpoint[UserUseCase with SkillUseCase, _, ErrorResponse, _]](
       getSkillEndpoint.zServerLogic(getSkill),
       registerSkillEndpoint.serverLogic(registerSkill)
     ).toRoutesR
 
-  object Logic {
-
-    def getSkill(input: SkillId): ZIO[SkillUseCase, ErrorResponse, SkillResponse] =
-      Route.Logic.errorToResponse(for {
-        response <- skill
-          .get(input)
-          .map(s => SkillResponse(s.id.value, s.name, s.description))
-      } yield response)
-
-    def registerSkill(input: (User, SkillForm)): ZIO[SkillUseCase, ErrorResponse, Unit] =
-      Route.Logic.errorToResponse(for {
-        response <- skill
-          .register(input._2.name, input._2.description)
-      } yield response)
-  }
+  override val endpoints = List(getSkillEndpoint, registerSkillEndpoint.endpoint)
 
   object Endpoints {
 
-    private val skillEndpoint       = Route.baseEndpoint.in("skill")
-    private val secureSkillEndpoint = Route.secureEndpoint.in("skill")
+    private val skillEndpoint       = baseEndpoint.in("skill")
+    private val secureSkillEndpoint = secureEndpoint.in("skill")
 
     val getSkillEndpoint: ZEndpoint[SkillId, ErrorResponse, SkillResponse] =
       skillEndpoint.get
@@ -61,8 +47,22 @@ object SkillRoute {
             .description("Register Skill")
             .example(SkillForm("test", Some("test skill")))
         )
+  }
 
-    val endpoints = List(getSkillEndpoint, registerSkillEndpoint.endpoint)
+  object Logic {
+
+    def getSkill(input: SkillId): ZIO[SkillUseCase, ErrorResponse, SkillResponse] =
+      errorToResponse(for {
+        response <- skill
+          .get(input)
+          .map(s => SkillResponse(s.id.value, s.name, s.description))
+      } yield response)
+
+    def registerSkill(input: (User, SkillForm)): ZIO[SkillUseCase, ErrorResponse, Unit] =
+      errorToResponse(for {
+        response <- skill
+          .register(input._2.name, input._2.description)
+      } yield response)
   }
 
 }

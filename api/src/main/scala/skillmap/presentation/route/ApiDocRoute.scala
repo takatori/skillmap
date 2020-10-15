@@ -7,19 +7,19 @@ import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio.interop.catz._
 import zio.{Task, ZIO}
 
-object ApiDocRoute {
+object ApiDocRoute extends Route[Any] {
 
   import sttp.tapir.docs.openapi._
   import sttp.tapir.openapi.circe.yaml._
 
-  private val endpoints =
-    UserRoute.Endpoints.endpoints ++
-    SkillRoute.Endpoints.endpoints
+  override val endpoints =
+    UserRoute.endpoints ++
+    SkillRoute.endpoints
 
   private val yaml = endpoints
     .toOpenAPI("skillmap api", "0.0.1")
     .toYaml
 
-  val route: ZIO[Any, Any, HttpRoutes[Task]] = ZIO.succeed(new SwaggerHttp4s(yaml).routes[Task])
+  override val route: ZIO[Any, Nothing, HttpRoutes[Task]] = ZIO.succeed(new SwaggerHttp4s(yaml).routes[Task])
 
 }
