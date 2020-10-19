@@ -8,6 +8,9 @@ on:
 jobs:
   scala-steward:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api    
     name: Launch Scala Steward
     steps:
       - name: Launch Scala Steward
