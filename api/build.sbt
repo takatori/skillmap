@@ -53,12 +53,12 @@ val compileOptions = Seq(
   "-deprecation",
   "-unchecked",
   "-Wdead-code",
+  "-Wunused",
   "-language:implicitConversions",
   "-language:higherKinds",
   "-language:existentials",
   "-language:postfixOps",
-  "-Ymacro-annotations",
-  "-Ywarn-unused-import"
+  "-Ymacro-annotations"
 )
 
 lazy val root = (project in file("."))
