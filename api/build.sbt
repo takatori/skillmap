@@ -1,4 +1,12 @@
 name := "skillmap"
+
+inThisBuild(
+  List(
+    semanticdbEnabled := true,                       // enable SemanticDB
+    semanticdbVersion := scalafixSemanticdb.revision // use Scalafix compatible version
+  )
+)
+
 scalaVersion := "2.13.2"
 version := "0.1.0-SNAPSHOT"
 val zioVer        = "1.0.0"
@@ -49,7 +57,8 @@ val compileOptions = Seq(
   "-language:higherKinds",
   "-language:existentials",
   "-language:postfixOps",
-  "-Ymacro-annotations"
+  "-Ymacro-annotations",
+  "-Ywarn-unused-import"
 )
 
 lazy val root = (project in file("."))
