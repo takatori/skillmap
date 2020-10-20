@@ -34,5 +34,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          directory: ./target/scala-2.13/coverage-report/
+          fail_ci_if_error: true
           verbose: true
