@@ -27,9 +27,12 @@ jobs:
         run: sbt ++$SCALA_VERSION "scalafixAll --check"
       - name: Check formatting
         run: sbt ++$SCALA_VERSION scalafmtCheckAll        
-      - name: Compile
-        run: sbt ++$SCALA_VERSION test:compile
       - name: Test
-        run: sbt ++$SCALA_VERSION test
+        run: sbt ++$SCALA_VERSION clean coverage test coverageReport
       - name: Scaladoc
         run: sbt ++$SCALA_VERSION doc 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          directory: ./target/scala-2.13/coverage-report/
+          verbose: true
