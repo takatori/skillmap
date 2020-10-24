@@ -34,15 +34,14 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
       } yield assert(result)(equalTo(testUser))
     }
 
-    val get_notFoundFailure: ZSpec[Any, Nothing] =
-      testM("returns NotFoundFailure") {
-        val id             = UserId("fail")
-        val mockRepository = MockUserRepository.Get(anything, value(None))
-        val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
-        for {
-          result <- user.get(id).provideLayer(layer).run
-        } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
-      }
+    val get_notFoundFailure: ZSpec[Any, Nothing] = testM("returns NotFoundFailure") {
+      val id             = UserId("fail")
+      val mockRepository = MockUserRepository.Get(anything, value(None))
+      val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
+      for {
+        result <- user.get(id).provideLayer(layer).run
+      } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
+    }
   }
 
 }
