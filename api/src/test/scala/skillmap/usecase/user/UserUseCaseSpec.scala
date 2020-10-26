@@ -18,30 +18,23 @@ object MockIdFactory
 object UserUseCaseSpec extends DefaultRunnableSpec {
 
   def spec =
-    suite("UserUseCase")(
-      TestCase.get_success,
-      TestCase.get_notFoundFailure
+    suite("`UserUseCase.get` must")(
+      testM("return `User`") {
+        val id             = UserId("test")
+        val testUser       = User(id, "test user")
+        val mockRepository = MockUserRepository.Get(equalTo(id), value(Some(testUser)))
+        val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
+        for {
+          result <- user.get(id).provideLayer(layer)
+        } yield assert(result)(equalTo(testUser))
+      },
+      testM("return `NotFoundFailure` if `UserRepository` return None") {
+        val id             = UserId("fail")
+        val mockRepository = MockUserRepository.Get(anything, value(None))
+        val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
+        for {
+          result <- user.get(id).provideLayer(layer).run
+        } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
+      }
     )
-
-  object TestCase {
-    val get_success: ZSpec[Any, ApplicationError] = testM("returns User") {
-      val id             = UserId("test")
-      val testUser       = User(id, "test user")
-      val mockRepository = MockUserRepository.Get(equalTo(id), value(Some(testUser)))
-      val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
-      for {
-        result <- user.get(id).provideLayer(layer)
-      } yield assert(result)(equalTo(testUser))
-    }
-
-    val get_notFoundFailure: ZSpec[Any, Nothing] = testM("returns NotFoundFailure") {
-      val id             = UserId("fail")
-      val mockRepository = MockUserRepository.Get(anything, value(None))
-      val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
-      for {
-        result <- user.get(id).provideLayer(layer).run
-      } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
-    }
-  }
-
 }

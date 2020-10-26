@@ -1,6 +1,6 @@
 package skillmap.usecase.skill
 
-import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
+import skillmap.domain.failure.NotFoundFailure
 import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
 import skillmap.infrastructure.id.IdFactory
 import zio.{ZIO, ZLayer}
