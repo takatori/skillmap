@@ -64,6 +64,6 @@ lazy val root = (project in file("."))
   .settings(name := "skills")
   .settings(
     scalacOptions ++= compileOptions,
-    libraryDependencies ++= dependencies ++ Seq(),
+    libraryDependencies ++= dependencies,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
