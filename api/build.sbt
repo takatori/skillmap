@@ -21,6 +21,8 @@ val dependencies = Seq(
   "dev.zio"                     %% "zio-interop-cats"         % "2.1.4.0",
   "dev.zio"                     %% "zio-macros"               % zioVer,
   "org.typelevel"               %% "cats-effect"              % catsEffectVer,
+  "eu.timepit"                  %% "refined"                  % "0.9.13",
+  "io.estatico"                 %% "newtype"                  % "0.4.4",
   "org.http4s"                  %% "http4s-core"              % http4sVer,
   "org.http4s"                  %% "http4s-dsl"               % http4sVer,
   "org.http4s"                  %% "http4s-blaze-server"      % http4sVer,
@@ -61,7 +63,7 @@ val compileOptions = Seq(
 )
 
 lazy val root = (project in file("."))
-  .settings(name := "skills")
+  .settings(name := "skillmap")
   .settings(
     scalacOptions ++= compileOptions,
     libraryDependencies ++= dependencies,
