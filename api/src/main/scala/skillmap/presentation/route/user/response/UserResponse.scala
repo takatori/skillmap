@@ -5,5 +5,5 @@ import skillmap.domain.user.User
 final case class UserResponse(id: String, name: String)
 
 object UserResponse {
-  def from(user: User): UserResponse = UserResponse(user.id.value, user.name)
+  def from(user: User): UserResponse = UserResponse(user.id.value.value, user.name.value.value)
 }

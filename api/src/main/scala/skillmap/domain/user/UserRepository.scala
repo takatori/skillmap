@@ -1,5 +1,6 @@
 package skillmap.domain.user
 
+import skillmap.domain.user.User.UserId
 import zio.ZIO
 
 object UserRepository {

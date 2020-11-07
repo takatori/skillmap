@@ -32,6 +32,7 @@ val dependencies = Seq(
   "io.circe"                    %% "circe-parser"             % circeVer,
   "org.tpolecat"                %% "doobie-core"              % doobieVer,
   "org.tpolecat"                %% "doobie-hikari"            % doobieVer,
+  "org.tpolecat"                %% "doobie-refined"           % doobieVer,
   "com.softwaremill.sttp.tapir" %% "tapir-core"               % tapirVer,
   "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVer,
   "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % tapirVer,

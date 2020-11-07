@@ -2,7 +2,8 @@ package skillmap.presentation.route.user
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import skillmap.domain.user.{User, UserId}
+import skillmap.domain.user.User.UserId
+import skillmap.domain.user.User
 import skillmap.presentation.response.ErrorResponse
 import skillmap.presentation.route.Route
 import skillmap.presentation.route.user.form.UserForm
