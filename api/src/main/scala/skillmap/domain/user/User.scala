@@ -17,7 +17,6 @@ object User {
   type UserIdString = String Refined UserIdRule
   @newtype case class UserId(value: UserIdString)
   object UserId {
-    //implicit val eq: Eq[UserId] = implicitly[Eq[String]].coerce
     def apply(rawUserId: String): Either[String, UserId] =
       refineV[UserIdRule](rawUserId).map(UserId(_))
   }
