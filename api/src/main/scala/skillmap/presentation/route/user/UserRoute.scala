@@ -2,14 +2,16 @@ package skillmap.presentation.route.user
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import skillmap.domain.user.User.UserId
+import skillmap.domain.failure.ValidationFailure
+import skillmap.domain.user.User.{UserId, UserName}
 import skillmap.domain.user.User
-import skillmap.presentation.response.ErrorResponse
+import skillmap.presentation.response.{BadRequestResponse, ErrorResponse}
 import skillmap.presentation.route.Route
 import skillmap.presentation.route.user.form.UserForm
 import skillmap.presentation.route.user.response.UserResponse
 import skillmap.usecase.user
 import skillmap.usecase.user.UserUseCase
+import sttp.tapir.DecodeResult
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
@@ -35,7 +37,11 @@ object UserRoute extends Route[UserUseCase] {
 
     val getUserEndPoint: ZPartialServerEndpoint[UserUseCase, User, UserId, ErrorResponse, UserResponse] =
       secureUserEndpoint.get
-        .in(path[String]("user id").mapTo(UserId))
+        .in(
+          path[String]("user id").mapDecode(name =>
+            UserName(name).fold(e => DecodeResult.Error(e, new Throwable("")), uname => DecodeResult.Value(uname))
+          )(username => username.value.value)
+        )
         .out(jsonBody[UserResponse])
 
     val registerUserEndpoint: ZEndpoint[UserForm, ErrorResponse, Unit] =
@@ -58,7 +64,8 @@ object UserRoute extends Route[UserUseCase] {
 
     def registerUserLogic(form: UserForm): ZIO[UserUseCase, ErrorResponse, Unit] =
       errorToResponse(for {
-        response <- user.register(form.name)
+        userName <- form.validate.mapError(ValidationFailure)
+        response <- user.register(userName)
       } yield response)
   }
 

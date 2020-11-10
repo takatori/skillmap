@@ -9,7 +9,7 @@ inThisBuild(
 
 scalaVersion := "2.13.2"
 version := "0.1.0-SNAPSHOT"
-val zioVer        = "1.0.0"
+val zioVer        = "1.0.3"
 val http4sVer     = "0.21.6"
 val tapirVer      = "0.16.13"
 val circeVer      = "0.13.0"

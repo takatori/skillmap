@@ -2,9 +2,9 @@ package skillmap.presentation.route
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
+import skillmap.domain.failure.{ApplicationError, NotFoundFailure, ValidationFailure}
 import skillmap.domain.user.User
-import skillmap.presentation.response.{ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
+import skillmap.presentation.response.{BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
 import skillmap.usecase.user.UserUseCase
 import sttp.model.StatusCode
 import sttp.tapir.Endpoint
@@ -23,8 +23,9 @@ trait Route[R0] {
         case Left(_) => InternalServerErrorResponse("internal server error")
         case Right(value) =>
           value.squash match {
-            case e: NotFoundFailure => NotFoundResponse(e.message)
-            case _                  => InternalServerErrorResponse("internal server error")
+            case e: NotFoundFailure   => NotFoundResponse(e.message)
+            case e: ValidationFailure => BadRequestResponse(e.message)
+            case _                    => InternalServerErrorResponse("internal server error")
           }
       }
     )
@@ -39,6 +40,10 @@ trait Route[R0] {
         statusMapping(
           StatusCode.NotFound,
           jsonBody[NotFoundResponse].description("resource not found")
+        ),
+        statusMapping(
+          StatusCode.BadRequest,
+          jsonBody[BadRequestResponse].description("invalid request")
         ),
         statusMapping(
           StatusCode.Forbidden,

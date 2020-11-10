@@ -1,6 +1,8 @@
 package skillmap.presentation.route.user.form
 
-final case class UserForm(name: String) {
+import skillmap.domain.user.User.UserName
+import zio.{IO, ZIO}
 
-  def validateUserName = {}
+final case class UserForm(name: String) {
+  def validate: IO[String, UserName] = ZIO.fromEither(UserName(name))
 }
