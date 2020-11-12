@@ -37,10 +37,9 @@ object UserUseCase {
             result <- repo.remove(id).orDie
           } yield result
 
-        override def auth(token: String): ZIO[Any, ApplicationError, User] = {
-          if (token == "secret") ZIO.succeed(User(UserId("1234").right.get, UserName("Spock").right.get))
-          else ZIO.fail(AuthenticationFailure("error auth"))
-        }
+        override def auth(token: String): ZIO[Any, ApplicationError, User] = ???
+        //if (token == "secret") ZIO.succeed(User(UserId("1234")., UserName("Spock").right.get))
+        //else ZIO.fail(AuthenticationFailure("error auth"))
       }
     }
 }

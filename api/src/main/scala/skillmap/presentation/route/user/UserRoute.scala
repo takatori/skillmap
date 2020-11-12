@@ -11,7 +11,8 @@ import skillmap.presentation.route.user.form.UserForm
 import skillmap.presentation.route.user.response.UserResponse
 import skillmap.usecase.user
 import skillmap.usecase.user.UserUseCase
-import sttp.tapir.DecodeResult
+import sttp.tapir.CodecFormat.TextPlain
+import sttp.tapir.{Codec, DecodeResult}
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
@@ -35,13 +36,18 @@ object UserRoute extends Route[UserUseCase] {
     private val userEndpoint       = baseEndpoint.in("user")
     private val secureUserEndpoint = secureEndpoint.in("user")
 
+    def decode(id: String): DecodeResult[UserId] = UserId(id) match {
+      case Right(u) => DecodeResult.Value(u)
+      case Left(s)  => DecodeResult.Error(id, new Throwable(s))
+    }
+    def encode(id: UserId): String = id.value.value
+
+    implicit val myIdCodec: Codec[String, UserId, TextPlain] =
+      Codec.string.mapDecode(decode)(encode)
+
     val getUserEndPoint: ZPartialServerEndpoint[UserUseCase, User, UserId, ErrorResponse, UserResponse] =
       secureUserEndpoint.get
-        .in(
-          path[String]("user id").mapDecode(name =>
-            UserName(name).fold(e => DecodeResult.Error(e, new Throwable("")), uname => DecodeResult.Value(uname))
-          )(username => username.value.value)
-        )
+        .in(path[UserId]("user id"))
         .out(jsonBody[UserResponse])
 
     val registerUserEndpoint: ZEndpoint[UserForm, ErrorResponse, Unit] =
