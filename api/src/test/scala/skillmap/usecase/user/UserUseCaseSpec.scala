@@ -21,8 +21,8 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
   def spec =
     suite("`UserUseCase.get` must")(
       testM("return `User`") {
-        val id             = UserId("test").toOption.get
-        val name           = UserName("test user").toOption.get
+        val id: UserId     = UserId("550e8400-e29b-41d4-a716-446655440000").toOption.get
+        val name           = UserName("testuser").toOption.get
         val testUser       = User(id, name)
         val mockRepository = MockUserRepository.Get(equalTo(id), value(Some(testUser)))
         val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
@@ -31,7 +31,7 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
         } yield assert(result)(equalTo(testUser))
       },
       testM("return `NotFoundFailure` if `UserRepository` return None") {
-        val id             = UserId("fail").toOption.get
+        val id             = UserId("550e8400-e29b-41d4-a716-446655440000").toOption.get
         val mockRepository = MockUserRepository.Get(anything, value(None))
         val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
         for {
