@@ -12,7 +12,7 @@ jobs:
         working-directory: api
     steps:
       - uses: actions/checkout@v2        
-      - uses: olafurpg/setup-scala@v7
+      - uses: olafurpg/setup-scala@v10
       - name: Cache Coursier
         uses: actions/cache@v2
         with:
