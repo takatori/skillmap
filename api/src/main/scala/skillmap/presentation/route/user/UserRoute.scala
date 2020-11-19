@@ -11,6 +11,7 @@ import skillmap.presentation.route.user.form.UserForm
 import skillmap.presentation.route.user.response.UserResponse
 import skillmap.usecase.user
 import skillmap.usecase.user.UserUseCase
+import skillmap.usecase.user.UserUseCase.UserUseCase
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
@@ -53,7 +54,7 @@ object UserRoute extends Route[UserUseCase] {
 
     def getUserLogic(input: (User, UserId)): ZIO[UserUseCase, ErrorResponse, UserResponse] =
       errorToResponse(for {
-        response <- user
+        response <- UserUseCase
           .get(input._2)
           .map(UserResponse.from)
       } yield response)
@@ -61,7 +62,7 @@ object UserRoute extends Route[UserUseCase] {
     def registerUserLogic(form: UserForm): ZIO[UserUseCase, ErrorResponse, Unit] =
       errorToResponse(for {
         userName <- form.validate.mapError(ValidationFailure)
-        response <- user.register(userName)
+        response <- UserUseCase.register(userName)
       } yield response)
   }
 

@@ -1,11 +1,13 @@
 package skillmap.usecase.skill
 
-import skillmap.domain.failure.NotFoundFailure
+import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
 import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
 import skillmap.infrastructure.id.IdFactory
-import zio.{ZIO, ZLayer}
+import zio.{Has, ZIO, ZLayer}
 
 object SkillUseCase {
+
+  type SkillUseCase = Has[SkillUseCase.Service]
 
   trait Service {
     def get(id: SkillId): ZIO[Any, NotFoundFailure, Skill]
@@ -42,4 +44,13 @@ object SkillUseCase {
     ZLayer.fromServices[SkillRepository.Service, IdFactory.Service, SkillUseCase.Service] { (repo, idFactory) =>
       Service.live(repo, idFactory)
     }
+
+  def get(id: SkillId): ZIO[SkillUseCase, ApplicationError, Skill] =
+    ZIO.accessM(_.get.get(id))
+
+  def register(name: String, description: Option[String]): ZIO[SkillUseCase, ApplicationError, Unit] =
+    ZIO.accessM(_.get.register(name, description))
+
+  def remove(id: SkillId): ZIO[SkillUseCase, ApplicationError, Unit] =
+    ZIO.accessM(_.get.remove(id))
 }

@@ -2,7 +2,6 @@ package skillmap.usecase.skill
 
 import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
 import skillmap.infrastructure.id.IdFactory
-import skillmap.usecase.skill
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -21,7 +20,7 @@ object SkillUseCaseSpec extends DefaultRunnableSpec {
         val mockRepository = MockSkillRepository.Get(equalTo(id), value(Some(testSkill)))
         val layer          = (IdFactory.test ++ mockRepository) >>> SkillUseCase.live
         for {
-          result <- skill.get(id).provideLayer(layer)
+          result <- SkillUseCase.get(id).provideLayer(layer)
         } yield assert(result)(equalTo(testSkill))
       }
     )

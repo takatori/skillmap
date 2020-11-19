@@ -4,7 +4,6 @@ import skillmap.domain.failure.NotFoundFailure
 import skillmap.domain.user.User.{UserId, UserName}
 import skillmap.domain.user.{User, UserRepository}
 import skillmap.infrastructure.id.IdFactory
-import skillmap.usecase.user
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -27,7 +26,7 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
         val mockRepository = MockUserRepository.Get(equalTo(id), value(Some(testUser)))
         val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
         for {
-          result <- user.get(id).provideLayer(layer)
+          result <- UserUseCase.get(id).provideLayer(layer)
         } yield assert(result)(equalTo(testUser))
       },
       testM("return `NotFoundFailure` if `UserRepository` return None") {
@@ -35,7 +34,7 @@ object UserUseCaseSpec extends DefaultRunnableSpec {
         val mockRepository = MockUserRepository.Get(anything, value(None))
         val layer          = (IdFactory.test ++ mockRepository) >>> UserUseCase.live
         for {
-          result <- user.get(id).provideLayer(layer).run
+          result <- UserUseCase.get(id).provideLayer(layer).run
         } yield assert(result)(fails(isSubtype[NotFoundFailure](anything)))
       }
     )

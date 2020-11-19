@@ -5,7 +5,7 @@ import org.http4s.HttpRoutes
 import skillmap.domain.failure.{ApplicationError, NotFoundFailure, ValidationFailure}
 import skillmap.domain.user.User
 import skillmap.presentation.response.{BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse}
-import skillmap.usecase.user.UserUseCase
+import skillmap.usecase.user.UserUseCase.UserUseCase
 import sttp.model.StatusCode
 import sttp.tapir.Endpoint
 import sttp.tapir.json.circe.jsonBody

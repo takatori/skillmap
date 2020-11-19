@@ -10,7 +10,8 @@ import skillmap.presentation.route.skill.form.SkillForm
 import skillmap.presentation.route.skill.response.SkillResponse
 import skillmap.usecase.skill
 import skillmap.usecase.skill.SkillUseCase
-import skillmap.usecase.user.UserUseCase
+import skillmap.usecase.skill.SkillUseCase.SkillUseCase
+import skillmap.usecase.user.UserUseCase.UserUseCase
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.ztapir._
 import sttp.tapir.ztapir.{path, _}
@@ -53,14 +54,14 @@ object SkillRoute extends Route[UserUseCase with SkillUseCase] {
 
     def getSkill(input: SkillId): ZIO[SkillUseCase, ErrorResponse, SkillResponse] =
       errorToResponse(for {
-        response <- skill
+        response <- SkillUseCase
           .get(input)
           .map(s => SkillResponse(s.id.value, s.name, s.description))
       } yield response)
 
     def registerSkill(input: (User, SkillForm)): ZIO[SkillUseCase, ErrorResponse, Unit] =
       errorToResponse(for {
-        response <- skill
+        response <- SkillUseCase
           .register(input._2.name, input._2.description)
       } yield response)
   }

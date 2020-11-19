@@ -4,9 +4,11 @@ import skillmap.domain.failure.{ApplicationError, AuthenticationFailure, NotFoun
 import skillmap.domain.user.User.{UserId, UserName}
 import skillmap.domain.user.{User, UserRepository}
 import skillmap.infrastructure.id.IdFactory
-import zio.{ZIO, ZLayer}
+import zio.{Has, ZIO, ZLayer}
 
 object UserUseCase {
+
+  type UserUseCase = Has[UserUseCase.Service]
 
   trait Service {
     def get(id: UserId): ZIO[Any, NotFoundFailure, User]
@@ -42,4 +44,17 @@ object UserUseCase {
         //else ZIO.fail(AuthenticationFailure("error auth"))
       }
     }
+
+  def get(id: UserId): ZIO[UserUseCase, ApplicationError, User] =
+    ZIO.accessM(_.get.get(id))
+
+  def register(name: UserName): ZIO[UserUseCase, ApplicationError, Unit] =
+    ZIO.accessM(_.get.register(name))
+
+  def remove(id: UserId): ZIO[UserUseCase, ApplicationError, Unit] =
+    ZIO.accessM(_.get.remove(id))
+
+  def auth(token: String): ZIO[UserUseCase, ApplicationError, User] =
+    ZIO.accessM(_.get.auth(token))
+
 }
