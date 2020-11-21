@@ -8,7 +8,6 @@ import skillmap.presentation.response.ErrorResponse
 import skillmap.presentation.route.Route
 import skillmap.presentation.route.skill.form.SkillForm
 import skillmap.presentation.route.skill.response.SkillResponse
-import skillmap.usecase.skill
 import skillmap.usecase.skill.SkillUseCase
 import skillmap.usecase.skill.SkillUseCase.SkillUseCase
 import skillmap.usecase.user.UserUseCase.UserUseCase

@@ -22,8 +22,8 @@ object Main extends App {
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
 
     val userRepository    = Blocking.live >>> LiveUserRepository.live
-    val userUseCaseLayer  = (userRepository ++ IdFactory.live) >>> UserUseCase.live
-    val skillUseCaseLayer = (SkillRepository.live ++ IdFactory.live) >>> SkillUseCase.live
+    val userUseCaseLayer  = (userRepository ++ IdFactory.ulid) >>> UserUseCase.live
+    val skillUseCaseLayer = (SkillRepository.live ++ IdFactory.ulid) >>> SkillUseCase.live
     val skillRoute        = SkillRoute.route.provideLayer(skillUseCaseLayer ++ userUseCaseLayer)
     val userRoute         = UserRoute.route.provideLayer(userUseCaseLayer)
 

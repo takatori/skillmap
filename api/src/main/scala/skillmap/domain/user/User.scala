@@ -5,7 +5,6 @@ import eu.timepit.refined.boolean.And
 import eu.timepit.refined.char.LetterOrDigit
 import eu.timepit.refined.collection.{Forall, MaxSize, NonEmpty}
 import eu.timepit.refined.refineV
-import eu.timepit.refined.string.Uuid
 import io.estatico.newtype.macros.newtype
 import skillmap.domain.user.User.{UserId, UserName}
 
@@ -13,7 +12,7 @@ final case class User(id: UserId, name: UserName)
 
 object User {
 
-  type UserIdRule   = Uuid
+  type UserIdRule   = NonEmpty And MaxSize[36] And Forall[LetterOrDigit]
   type UserIdString = String Refined UserIdRule
   @newtype case class UserId(value: UserIdString)
   object UserId {

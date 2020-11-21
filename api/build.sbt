@@ -63,6 +63,7 @@ lazy val root = (project in file("."))
         "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % tapirVer,
         "mysql"                       % "mysql-connector-java"      % "8.0.21",
         "org.slf4j"                   % "slf4j-simple"              % "1.6.4",
+        "net.petitviolet"             %% "ulid4s"                   % "0.5.0",
         "dev.zio"                     %% "zio-test"                 % zioVer % "test",
         "dev.zio"                     %% "zio-test-sbt"             % zioVer % "test"
       ),

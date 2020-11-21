@@ -9,7 +9,6 @@ import skillmap.presentation.response.ErrorResponse
 import skillmap.presentation.route.Route
 import skillmap.presentation.route.user.form.UserForm
 import skillmap.presentation.route.user.response.UserResponse
-import skillmap.usecase.user
 import skillmap.usecase.user.UserUseCase
 import skillmap.usecase.user.UserUseCase.UserUseCase
 import sttp.tapir.json.circe.jsonBody
