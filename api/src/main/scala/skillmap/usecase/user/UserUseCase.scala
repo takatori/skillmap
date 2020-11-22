@@ -1,6 +1,6 @@
 package skillmap.usecase.user
 
-import skillmap.domain.failure.{ApplicationError, AuthenticationFailure, NotFoundFailure}
+import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
 import skillmap.domain.user.User.{UserId, UserName}
 import skillmap.domain.user.{User, UserRepository}
 import skillmap.infrastructure.id.IdFactory
