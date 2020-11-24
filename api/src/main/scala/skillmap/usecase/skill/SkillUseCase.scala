@@ -1,7 +1,8 @@
 package skillmap.usecase.skill
 
 import skillmap.domain.failure.{ApplicationError, NotFoundFailure}
-import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
+import skillmap.domain.skill.Skill.SkillId
+import skillmap.domain.skill.{Skill, SkillRepository}
 import skillmap.infrastructure.id.IdFactory
 import zio.{Has, ZIO, ZLayer}
 
@@ -28,8 +29,9 @@ object SkillUseCase {
           description: Option[String]
       ): ZIO[Any, Nothing, Unit] =
         for {
-          id <- idFactory.generate()
-          s = Skill(SkillId(id), name, description)
+          id      <- idFactory.generate()
+          skillId <- ZIO.fromEither(SkillId(id)).mapError(s => new Throwable(s)).orDie // TODO: fix
+          s = Skill(skillId, name, description)
           _ <- repo.save(s).orDie
         } yield ()
 

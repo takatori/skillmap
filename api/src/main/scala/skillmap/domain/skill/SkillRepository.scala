@@ -1,5 +1,6 @@
 package skillmap.domain.skill
 
+import skillmap.domain.skill.Skill.SkillId
 import zio.{ZIO, ZLayer}
 
 object SkillRepository {

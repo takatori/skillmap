@@ -1,5 +1,6 @@
 package skillmap.domain
 
+import skillmap.domain.skill.Skill.SkillId
 import zio.{Has, ZIO}
 
 package object skill {

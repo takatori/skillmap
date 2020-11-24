@@ -1,6 +1,7 @@
 package skillmap.usecase.skill
 
-import skillmap.domain.skill.{Skill, SkillId, SkillRepository}
+import skillmap.domain.skill.Skill.SkillId
+import skillmap.domain.skill.{Skill, SkillRepository}
 import skillmap.infrastructure.id.IdFactory
 import zio.test.Assertion._
 import zio.test._
@@ -15,7 +16,7 @@ object SkillUseCaseSpec extends DefaultRunnableSpec {
   def spec =
     suite("`SkillUseCase.get` must")(
       testM("return `Skill`") {
-        val id             = SkillId("test")
+        val id             = SkillId("test").toOption.get
         val testSkill      = Skill(id, "test skill", None)
         val mockRepository = MockSkillRepository.Get(equalTo(id), value(Some(testSkill)))
         val layer          = (IdFactory.test ++ mockRepository) >>> SkillUseCase.live

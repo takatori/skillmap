@@ -2,7 +2,7 @@ package skillmap.presentation.route.skill
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import skillmap.domain.skill.SkillId
+import skillmap.domain.skill.Skill.SkillId
 import skillmap.domain.user.User
 import skillmap.presentation.response.ErrorResponse
 import skillmap.presentation.route.Route
@@ -35,9 +35,10 @@ object SkillRoute extends Route[UserUseCase with SkillUseCase] {
     private val skillEndpoint       = baseEndpoint.in("skill")
     private val secureSkillEndpoint = secureEndpoint.in("skill")
 
+    import skillmap.presentation.route.skill.form.SkillIdCodec._
     val getSkillEndpoint: ZEndpoint[SkillId, ErrorResponse, SkillResponse] =
       skillEndpoint.get
-        .in(path[String]("skill id").mapTo(SkillId))
+        .in(path[SkillId]("skill id"))
         .out(jsonBody[SkillResponse])
 
     val registerSkillEndpoint: ZPartialServerEndpoint[UserUseCase, User, SkillForm, ErrorResponse, Unit] =
@@ -55,7 +56,7 @@ object SkillRoute extends Route[UserUseCase with SkillUseCase] {
       errorToResponse(for {
         response <- SkillUseCase
           .get(input)
-          .map(s => SkillResponse(s.id.value, s.name, s.description))
+          .map(s => SkillResponse(s.id.value.value, s.name, s.description))
       } yield response)
 
     def registerSkill(input: (User, SkillForm)): ZIO[SkillUseCase, ErrorResponse, Unit] =
